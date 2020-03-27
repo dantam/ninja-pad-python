@@ -35,15 +35,25 @@ class Crypto:
             Crypto.padding,
         )
 
-    def public_key_to_file(self, filename):
-        with open(filename, 'wb') as f:
-            f.write(self.public_bytes())
-
     def public_bytes(self):
         return self.public_key.public_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PublicFormat.SubjectPublicKeyInfo
         )
+
+    def public_key_to_file(self, filename):
+        payload = self.public_bytes()
+        with open(filename, 'wb') as f:
+            f.write(payload)
+
+    def UNSAFE_private_key_to_file(self, filename):
+        payload = self.private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.TraditionalOpenSSL,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
+        with open(filename, 'wb') as f:
+            f.write(payload)
 
 class CryptoClient:
     def __init__(self, filename):
