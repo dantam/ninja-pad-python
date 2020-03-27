@@ -9,6 +9,7 @@ from lib.configs.db_config import (
 )
 from lib.configs.client_config import ClientConfig
 from lib.crypto import Crypto
+from demo.constants import Constants
 
 store_to_files = {
     DC.ON_DEVICE_STORE: Tables.ON_DEVICE_STORE,
@@ -24,17 +25,17 @@ def get_args():
     )
     parser.add_argument(
         '--basedir',
-        default='{}/demo/'.format(os.getcwd()),
+        default='{}/{}/'.format(os.getcwd(), Constants.BASE_DIR),
         help='absolute path to directory',
     )
     parser.add_argument(
         '--config_dir',
-        default='configs'.format(os.getcwd()),
+        default=Constants.CONFIG_DIR,
         help='relative path from basedir to config directory',
     )
     parser.add_argument(
         '--db_dir',
-        default='dbs'.format(os.getcwd()),
+        default='dbs',
         help='relative path from basedir to db directory',
     )
     parser.add_argument(
@@ -54,7 +55,7 @@ def get_args():
     )
     parser.add_argument(
         '--client_config',
-        default='client_conf.json',
+        default=Constants.CLIENT_CONFIG,
         help='name of client file',
     )
     parser.add_argument(
