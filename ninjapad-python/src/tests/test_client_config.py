@@ -11,12 +11,12 @@ from lib.configs.client_config import ClientConfig
 PAS = [1, 2, 3]
 LAS = [4, 5]
 MAS = [6]
-SES = [7, 8, 9, 10, 11, 12]
+PES = [7, 8, 9, 10, 11, 12]
 config = {
     ClientConfig.PAS: PAS,
     ClientConfig.LAS: LAS,
     ClientConfig.MAS: MAS,
-    ClientConfig.SES: SES,
+    ClientConfig.PES: PES,
 }
 
 @patch(
@@ -35,8 +35,8 @@ class TestConfig(unittest.TestCase):
         mas = cm.get_medical_auths()
         self.assertEqual(mas, MAS)
 
-        ses = cm.get_security_enforcers()
-        self.assertEqual(ses, SES)
+        pes = cm.get_privacy_enforcers()
+        self.assertEqual(pes, PES)
 
     @patch(
         "secrets.choice",
@@ -55,7 +55,7 @@ class TestConfig(unittest.TestCase):
         ma = cm.get_medical_auth()
         self.assertEqual(ma, 6)
 
-        se = cm.get_security_enforcer()
+        se = cm.get_privacy_enforcer()
         self.assertEqual(se, 10)
 
 if __name__ == '__main__':

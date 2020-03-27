@@ -5,7 +5,7 @@ class ClientConfig:
     PAS = 'personal_authorities'
     LAS = 'location_authorities'
     MAS = 'medical_authorities'
-    SES = 'security_enforcers'
+    PES = 'privacy_enforcers'
     TOKEN_LENGTH = 'token_length'
     PUBLIC_KEYS_FILE = 'public_keys_file'
 
@@ -37,11 +37,11 @@ class ClientConfig:
     def get_medical_auth(self):
         return self.get_random_value(ClientConfig.MAS)
 
-    def get_security_enforcers(self):
-        return self.get_value(ClientConfig.SES)
+    def get_privacy_enforcers(self):
+        return self.get_value(ClientConfig.PES)
 
-    def get_security_enforcer(self):
-        return self.get_random_value(ClientConfig.SES)
+    def get_privacy_enforcer(self):
+        return self.get_random_value(ClientConfig.PES)
 
     def get_token_len(self):
         return self.get_value(ClientConfig.TOKEN_LENGTH)

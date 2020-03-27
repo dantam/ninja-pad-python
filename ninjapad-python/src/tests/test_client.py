@@ -16,7 +16,7 @@ from lib.location_auth import LocationAuthority as LA
 def setup_configs(
     person_auths,
     location_auths,
-    security_enforcers,
+    privacy_enforcers,
     token_length,
     public_keys_file,
     auth_type_to_auth_id_and_pem_files,
@@ -24,7 +24,7 @@ def setup_configs(
     client_config = {
         ClientConfig.PAS: person_auths,
         ClientConfig.LAS: location_auths,
-        ClientConfig.SES: security_enforcers,
+        ClientConfig.PES: privacy_enforcers,
         ClientConfig.TOKEN_LENGTH: token_length,
         ClientConfig.PUBLIC_KEYS_FILE: public_keys_file,
     }
