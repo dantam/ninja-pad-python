@@ -6,7 +6,7 @@ from unittest.mock import (
     mock_open,
     patch,
 )
-from lib.person_auth import PersonAuthority as PA
+from lib.auths.person_auth import PersonAuthority as PA
 from lib.configs.client_config import ClientConfig
 from lib.configs.authority_public_keys_config import (
     AuthorityPublicKeysConfig as APKC,

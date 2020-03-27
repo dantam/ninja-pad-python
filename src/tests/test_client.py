@@ -10,11 +10,11 @@ from unittest.mock import (
     MagicMock,
 )
 from lib.configs.client_config import ClientConfig
-from lib.client import Client
+from lib.clients.user_client import UserClient
 from lib.crypto import CryptoClient
-from lib.person_auth import PersonAuthority as PA
-from lib.location_auth import LocationAuthority as LA
-from lib.privacy_enforcer import (
+from lib.auths.person_auth import PersonAuthority as PA
+from lib.auths.location_auth import LocationAuthority as LA
+from lib.auths.privacy_enforcer import (
     make_payload,
     json_to_bytes,
     PrivacyEnforcer as PE,
@@ -91,7 +91,7 @@ class TestClient(unittest.TestCase):
                 {ClientConfig.PAS: (1, pem_file.name)},
             )
             with patch('builtins.open', side_effect=mock_mapping):
-                client = Client('mock_file')
+                client = UserClient('mock_file')
                 encrypted_otp = client.encrypt_one_time_pad()
                 otp = pa.decrypt(encrypted_otp)
             self.assertEqual(otp, TestClient.fake_otp.encode())
@@ -107,7 +107,7 @@ class TestClient(unittest.TestCase):
                 {ClientConfig.LAS: (2, pem_file.name)},
             )
             with patch('builtins.open', side_effect=mock_mapping):
-                client = Client('mock_file')
+                client = UserClient('mock_file')
                 location = b'abcd'
                 encrypted_location = client.encrypt_location(location)
                 decrypted_location = la.decrypt(encrypted_location)
@@ -127,7 +127,7 @@ class TestClient(unittest.TestCase):
                 {ClientConfig.PES: (3, pem_file.name)},
             )
             with patch('builtins.open', side_effect=mock_mapping):
-                client = Client('mock_file')
+                client = UserClient('mock_file')
                 location = b'abcd'
                 time = 123
                 otp = b'otp'
