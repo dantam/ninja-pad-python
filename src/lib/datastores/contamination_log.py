@@ -4,13 +4,16 @@ import sqlalchemy as db
 from lib.datastores.base_datastore import BaseDatastore
 
 class ContaminationLog(BaseDatastore):
+    def __init__(self, datastore_config, index=0):
+        config = datastore_config.get_contamination_logs_config()[index]
+        super().__init__(config)
+
     def get_table(self):
         return db.Table(
             'contamination_log', self.metadata,
             db.Column('time', db.DATETIME),
             db.Column('encrypted_location', db.VARCHAR(256)),
         )
-
     def insert(self, time, encrypted_location):
         query = db.insert(self.table).values(
             time=time,

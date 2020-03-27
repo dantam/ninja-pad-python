@@ -4,6 +4,9 @@ import secrets
 class DatabaseEngines:
     SQLITE = 'sqlite3'
 
+class ConfigMissingException(Exception):
+    pass
+
 class BaseDatastoreConfig:
     DATABASE_ENGINE = "database_engine"
     DATABASE_NAME = "database_name"
@@ -19,6 +22,12 @@ class BaseDatastoreConfig:
     def get_value(self, key):
         return self.config.get(key, None)
 
+    def must_get_value(self, key):
+        value = self.get_value(key)
+        if value == None:
+            raise ConfigMissingException('Config Missing: {}'.format(key))
+        return value
+
 class DatastoreConfig(BaseDatastoreConfig):
     LOCATION_LOGS = 'location_logs'
     CONTAMINATION_LOGS = 'contamination_logs'
@@ -31,19 +40,19 @@ class DatastoreConfig(BaseDatastoreConfig):
             self.config = json.load(f)
 
     def get_location_logs_config(self):
-        return self.get_value(DatastoreConfig.LOCATION_LOGS)
+        return self.must_get_value(DatastoreConfig.LOCATION_LOGS)
 
     def get_contamination_logs_config(self):
-        return self.get_value(DatastoreConfig.CONTAMINATION_LOGS)
+        return self.must_get_value(DatastoreConfig.CONTAMINATION_LOGS)
 
     def get_notification_logs_config(self):
-        return self.get_value(DatastoreConfig.NOTIFICATION_LOGS)
+        return self.must_get_value(DatastoreConfig.NOTIFICATION_LOGS)
 
     def get_privacy_enforcer_logs_config(self):
-        return self.get_value(DatastoreConfig.PRIVACY_ENFORCER_LOGS)
+        return self.must_get_value(DatastoreConfig.PRIVACY_ENFORCER_LOGS)
 
     def get_on_device_store_config(self):
-        return self.get_value(DatastoreConfig.ON_DEVICE_STORE)
+        return self.must_get_value(DatastoreConfig.ON_DEVICE_STORE)
 
 class UnsupportedDatabaseEngineException(Exception):
     pass

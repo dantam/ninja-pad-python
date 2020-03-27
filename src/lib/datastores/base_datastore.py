@@ -4,9 +4,8 @@ import sqlalchemy as db
 from lib.configs.db_config import ConfigFactory
 
 class BaseDatastore:
-    def __init__(self, datastore_config, index=0):
-        entries = datastore_config.get_on_device_store_config()
-        self.config = ConfigFactory.get(entries[index])
+    def __init__(self, datastore_config):
+        self.config = ConfigFactory.get(datastore_config)
         self.engine = db.create_engine(self.config.get_create_engine())
         self.connection = self.engine.connect()
         self.metadata = db.MetaData()
@@ -41,4 +40,3 @@ class BaseDatastore:
     def delete(self, where_clause):
         query = self.table.delete().where(where_clause)
         return self.connection.execute(query)
-

@@ -4,6 +4,10 @@ import sqlalchemy as db
 from lib.datastores.base_datastore import BaseDatastore
 
 class NotificationLog(BaseDatastore):
+    def __init__(self, datastore_config, index=0):
+        config = datastore_config.get_notification_logs_config()[index]
+        super().__init__(config)
+
     def get_table(self):
         return db.Table(
             'notification_log', self.metadata,

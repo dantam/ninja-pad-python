@@ -11,8 +11,7 @@ class BaseLocationLog(BaseDatastore):
             encrypted_location=encrypted_location,
             encrypted_otp=encrypted_otp
         )
-        with self.engine.connect() as connection:
-            connection.execute(query)
+        self.connection.execute(query)
 
     def get_where(self, times, encrypted_location, encrypted_otp):
         column_value_map = {

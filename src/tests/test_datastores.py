@@ -9,6 +9,7 @@ from unittest.mock import (
 from lib.configs.db_config import (
     DatastoreConfig as DC,
     DatabaseEngines as DE,
+    ConfigMissingException,
 )
 from lib.datastores.location_log import LocationLog
 from lib.datastores.notification_log import NotificationLog
@@ -26,6 +27,18 @@ db_config = {
         DC.DATABASE_FILE: '',
     }],
     DC.NOTIFICATION_LOGS: [{
+        DC.DATABASE_ENGINE: DE.SQLITE,
+        DC.DATABASE_FILE: '',
+    }],
+    DC.CONTAMINATION_LOGS: [{
+        DC.DATABASE_ENGINE: DE.SQLITE,
+        DC.DATABASE_FILE: '',
+    }],
+    DC.NOTIFICATION_LOGS: [{
+        DC.DATABASE_ENGINE: DE.SQLITE,
+        DC.DATABASE_FILE: '',
+    }],
+    DC.PRIVACY_ENFORCER_LOGS: [{
         DC.DATABASE_ENGINE: DE.SQLITE,
         DC.DATABASE_FILE: '',
     }],
@@ -58,7 +71,10 @@ class TestDatastores(unittest.TestCase):
         self.basic_test(NotificationLog, **entry)
 
     def test_on_device_store(self):
-        entry = {'person_auth_id': 'pa_id'}
+        entry = {
+            'person_auth_id': 'pa_id',
+            'salted_otp': 'salted_otp',
+         }
         self.basic_test(OnDeviceStore, **entry)
 
     def test_location_log(self):
@@ -80,6 +96,17 @@ class TestDatastores(unittest.TestCase):
             'encrypted_otp': 'otp',
         }
         self.basic_test(PrivacyEnforcerStore, **entry)
+
+    def test_missing_log_config(self):
+        entry = {
+            'encrypted_location': 'loc',
+            'encrypted_otp': 'otp',
+        }
+        config = db_config
+        del(config[DC.PRIVACY_ENFORCER_LOGS])
+        with patch('builtins.open', mock_open(read_data=json.dumps(config))), \
+            self.assertRaises(ConfigMissingException):
+                self.basic_test(PrivacyEnforcerStore, **entry)
 
 if __name__ == '__main__':
     unittest.main()
