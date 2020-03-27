@@ -6,7 +6,7 @@ venv
 *.swo
 *.swn
 
-demo/configs/
-demo/dbs/
-demo/keys/
+demo/configs/*
+demo/dbs/*
+demo/keys/*
 
