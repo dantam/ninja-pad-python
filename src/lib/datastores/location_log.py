@@ -1,19 +1,55 @@
 import datetime
 import sqlalchemy as db
 
-from lib.configs.db_config import DatastoreTableNames
-from lib.datastores.base_location_log import BaseLocationLog
+from lib.datastores.base_datastore import BaseDatastore
 
-class LocationLog(BaseLocationLog):
-    def __init__(self, datastore_config, index=0):
-        config = datastore_config.get_location_logs_config()[index]
-        super().__init__(config)
-
+class LocationLog(BaseDatastore):
     def get_table(self):
         return db.Table(
-            DatastoreTableNames.LOCATION_LOG, self.metadata,
+            'location_log', self.metadata,
             db.Column('time', db.DATETIME),
-            db.Column('encrypted_location', db.VARCHAR(256)),
             db.Column('encrypted_otp', db.VARCHAR(256)),
         )
+
+    def create(self):
+        self.metadata.create_all(self.engine)
+
+    def insert(self, time, encrypted_otp):
+        query = db.insert(self.table).values(
+            time=time,
+            encrypted_otp=encrypted_otp
+        )
+        self.connection.execute(query)
+
+    def get_time_range(
+        self,
+        end=datetime.datetime.now(),
+        delta=datetime.timedelta(days=28),
+    ):
+        return (end-delta, end)
+
+    def get_where(self, times, encrypted_otp):
+        if len(times) == 0:
+            times = self.get_time_range()
+        clauses = [
+            self.table.columns.time >= times[0],
+            self.table.columns.time <= times[1],
+        ]
+        if encrypted_otp != None:
+            clauses.append(
+                self.table.columns.encrypted_otp == encrypted_otp
+            )
+        return db.and_(*clauses)
+
+    def query(self, times=(), encrypted_otp=None):
+        query = db.select([self.table]).where(
+            self.get_where(times, encrypted_otp)
+        )
+        return self.connection.execute(query).fetchall()
+
+    def delete(self, times=(), encrypted_otp=None):
+        query = self.table.delete().where(
+            self.get_where(times, encrypted_otp)
+        )
+        return self.connection.execute(query)
 
