@@ -18,32 +18,18 @@ from lib.datastores.on_device_store import OnDeviceStore
 from lib.datastores.contamination_log import ContaminationLog
 from lib.datastores.privacy_enforcer_store import PrivacyEnforcerStore
 
-db_config = {
-    DC.ON_DEVICE_STORE: [{
-        DC.DATABASE_ENGINE: DE.SQLITE,
-        DC.DATABASE_FILE: '',
-    }],
-    DC.LOCATION_LOGS: [{
-        DC.DATABASE_ENGINE: DE.SQLITE,
-        DC.DATABASE_FILE: '',
-    }],
-    DC.NOTIFICATION_LOGS: [{
-        DC.DATABASE_ENGINE: DE.SQLITE,
-        DC.DATABASE_FILE: '',
-    }],
-    DC.CONTAMINATION_LOGS: [{
-        DC.DATABASE_ENGINE: DE.SQLITE,
-        DC.DATABASE_FILE: '',
-    }],
-    DC.NOTIFICATION_LOGS: [{
-        DC.DATABASE_ENGINE: DE.SQLITE,
-        DC.DATABASE_FILE: '',
-    }],
-    DC.PRIVACY_ENFORCER_STORE: [{
-        DC.DATABASE_ENGINE: DE.SQLITE,
-        DC.DATABASE_FILE: '',
-    }],
-}
+test_config = [{
+    DC.DATABASE_ENGINE: DE.SQLITE,
+    DC.DATABASE_FILE: '',
+}]
+stores = [
+    DC.ON_DEVICE_STORE,
+    DC.LOCATION_LOGS,
+    DC.NOTIFICATION_LOGS,
+    DC.CONTAMINATION_LOGS,
+    DC.PRIVACY_ENFORCER_STORE,
+]
+db_config = {k: test_config for k in stores}
 
 @patch(
     "builtins.open",
