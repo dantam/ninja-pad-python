@@ -105,16 +105,15 @@ auth_to_key_files = {
     ClientConfig.MAS: (3, 'ma_auth'),
     ClientConfig.PES: (4, 'pe_auth'),
 }
-def make_key_config(args):
+
+def make_key_config_file(args):
     key_config = {}
     for k, v in auth_to_key_files.items():
         auth_id, filename = v
+        filename = '{}.{}'.format(filename, args.public_key_file_extension)
         fullpath = os.path.join(args.basedir, args.key_dir, filename)
         key_config[k] = {auth_id: fullpath}
-    return key_config
-
-def make_key_config_file(args):
-    write_file(args, args.generated_key_config, args.key_config)
+    write_file(args, key_config, args.key_config)
 
 def make_config_files(args):
     make_db_config_file(args)
@@ -122,16 +121,17 @@ def make_config_files(args):
     make_key_config_file(args)
 
 def make_keys(args):
-    for k in args.generated_key_config.keys():
-        for v in args.generated_key_config[k].values():
-            crypto = Crypto()
-            pub_file = '{}.{}'.format(v, args.public_key_file_extension)
-            crypto.public_key_to_file(pub_file)
-            crypto.UNSAFE_private_key_to_file(v)
+    for k, v in auth_to_key_files.items():
+        auth_id, filename = v
+        pub_file = '{}.{}'.format(filename, args.public_key_file_extension)
+        crypto = Crypto()
+        fullpath = os.path.join(args.basedir, args.key_dir, pub_file)
+        crypto.public_key_to_file(fullpath)
+        fullpath = os.path.join(args.basedir, args.key_dir, filename)
+        crypto.UNSAFE_private_key_to_file(fullpath)
 
 def main():
     args = get_args()
-    args.generated_key_config = make_key_config(args)
     make_config_files(args)
     make_keys(args)
 
