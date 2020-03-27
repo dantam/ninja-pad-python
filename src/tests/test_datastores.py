@@ -13,6 +13,8 @@ from lib.configs.db_config import (
 from lib.datastores.location_log import LocationLog
 from lib.datastores.notification_log import NotificationLog
 from lib.datastores.on_device_store import OnDeviceStore
+from lib.datastores.contamination_log import ContaminationLog
+from lib.datastores.privacy_enforcer_store import PrivacyEnforcerStore
 
 db_config = {
     DC.ON_DEVICE_STORE: [{
@@ -34,8 +36,8 @@ db_config = {
     mock_open(read_data=json.dumps(db_config))
 )
 class TestDatastores(unittest.TestCase):
-    def basic_test(self, log, **entry):
-        dc = DC('mock_file')
+    def basic_test(self, log_wrapper, **entry):
+        log = log_wrapper(DC('mock_file'))
         self.assertNotEqual(log, None)
         log.create()
         rs = log.query()
@@ -53,18 +55,31 @@ class TestDatastores(unittest.TestCase):
 
     def test_notification_log(self):
         entry = {'encrypted_otp': 'otp'}
-        self.basic_test(NotificationLog(DC('mock_file')), **entry)
+        self.basic_test(NotificationLog, **entry)
 
     def test_on_device_store(self):
         entry = {'person_auth_id': 'pa_id'}
-        self.basic_test(OnDeviceStore(DC('mock_file')), **entry)
+        self.basic_test(OnDeviceStore, **entry)
 
     def test_location_log(self):
         entry = {
             'encrypted_location': 'loc',
             'encrypted_otp': 'otp',
         }
-        self.basic_test(LocationLog(DC('mock_file')), **entry)
+        self.basic_test(LocationLog, **entry)
+
+    def test_contamination_log(self):
+        entry = {
+            'encrypted_location': 'loc',
+        }
+        self.basic_test(ContaminationLog, **entry)
+
+    def test_privacy_enforcer_store(self):
+        entry = {
+            'encrypted_location': 'loc',
+            'encrypted_otp': 'otp',
+        }
+        self.basic_test(PrivacyEnforcerStore, **entry)
 
 if __name__ == '__main__':
     unittest.main()
