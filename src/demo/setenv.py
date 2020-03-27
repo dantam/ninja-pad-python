@@ -8,6 +8,7 @@ from lib.configs.db_config import (
     DatastoreTableNames as Tables,
 )
 from lib.configs.client_config import ClientConfig
+from lib.crypto import Crypto
 
 store_to_files = {
     DC.ON_DEVICE_STORE: Tables.ON_DEVICE_STORE,
@@ -105,15 +106,24 @@ def make_key_config_file(args):
         fullpath = os.path.join(args.basedir, args.key_dir, filename)
         key_config[k] = {auth_id: fullpath}
     write_file(args, key_config, args.key_config)
+    return key_config
 
-def make_config_files(arg):
-    make_db_config_file(arg)
-    make_client_config_file(arg)
-    make_key_config_file(arg)
+def make_config_files(args):
+    make_db_config_file(args)
+    make_client_config_file(args)
+    key_config = make_key_config_file(args)
+    return key_config
+
+def make_keys(args, key_config):
+    for k in key_config.keys():
+        for v in key_config[k].values():
+            crypto = Crypto()
+            crypto.public_key_to_file(v)
 
 def main():
     args = get_args()
-    make_config_files(args)
+    key_config = make_config_files(args)
+    make_keys(args, key_config)
 
 if __name__ == '__main__':
     main()
