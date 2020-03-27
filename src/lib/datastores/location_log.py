@@ -11,9 +11,6 @@ class LocationLog(BaseDatastore):
             db.Column('encrypted_otp', db.VARCHAR(256)),
         )
 
-    def create(self):
-        self.metadata.create_all(self.engine)
-
     def insert(self, time, encrypted_otp):
         query = db.insert(self.table).values(
             time=time,
@@ -21,35 +18,15 @@ class LocationLog(BaseDatastore):
         )
         self.connection.execute(query)
 
-    def get_time_range(
-        self,
-        end=datetime.datetime.now(),
-        delta=datetime.timedelta(days=28),
-    ):
-        return (end-delta, end)
-
     def get_where(self, times, encrypted_otp):
-        if len(times) == 0:
-            times = self.get_time_range()
-        clauses = [
-            self.table.columns.time >= times[0],
-            self.table.columns.time <= times[1],
-        ]
-        if encrypted_otp != None:
-            clauses.append(
-                self.table.columns.encrypted_otp == encrypted_otp
-            )
-        return db.and_(*clauses)
+        return super().get_where(
+            times,
+            {self.table.columns.encrypted_otp: encrypted_otp}
+        )
 
     def query(self, times=(), encrypted_otp=None):
-        query = db.select([self.table]).where(
-            self.get_where(times, encrypted_otp)
-        )
-        return self.connection.execute(query).fetchall()
+        return super().query(self.get_where(times, encrypted_otp))
 
     def delete(self, times=(), encrypted_otp=None):
-        query = self.table.delete().where(
-            self.get_where(times, encrypted_otp)
-        )
-        return self.connection.execute(query)
+        return super().delete(self.get_where(times, encrypted_otp))
 
