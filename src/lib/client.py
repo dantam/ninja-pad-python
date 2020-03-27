@@ -5,7 +5,7 @@ from lib.configs.client_config import ClientConfig
 from lib.configs.authority_public_keys_config import (
     AuthorityPublicKeysConfig as APKC,
 )
-from lib.privacy_enforcer import PrivacyEnforcerClient
+from lib.auths.privacy_enforcer import PrivacyEnforcerClient
 
 class Client:
     def __init__(self, config_file):
