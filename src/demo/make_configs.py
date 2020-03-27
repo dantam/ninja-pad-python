@@ -51,6 +51,16 @@ def get_args():
         default='key_conf.json',
         help='name of key file',
     )
+    parser.add_argument(
+        '--client_config',
+        default='client_conf.json',
+        help='name of client file',
+    )
+    parser.add_argument(
+        '--token_length',
+        default=256,
+        help='number of bytes for secrets',
+    )
     return parser.parse_args()
 
 def write_file(args, payload, filename):
@@ -67,22 +77,38 @@ def make_db_config_file(args):
         }]
     write_file(args, db_config, args.db_config)
 
+auth_to_auth_ids = {
+    ClientConfig.PAS: [1],
+    ClientConfig.LAS: [2],
+    ClientConfig.MAS: [3],
+    ClientConfig.PES: [4],
+}
+def make_client_config_file(args):
+    keys_file = os.path.join(args.basedir, args.config_dir, args.key_config)
+    payload = {
+        ClientConfig.TOKEN_LENGTH: args.token_length,
+        ClientConfig.PUBLIC_KEYS_FILE: keys_file,
+    }
+    payload.update(auth_to_auth_ids)
+    write_file(args, payload, args.client_config)
+
 auth_to_key_files = {
-    ClientConfig.PAS: 'pa_auth',
-    ClientConfig.LAS: 'la_auth',
-    ClientConfig.MAS: 'ma_auth',
-    ClientConfig.PES: 'pe_auth',
+    ClientConfig.PAS: (1, 'pa_auth.pem'),
+    ClientConfig.LAS: (2, 'la_auth.pem'),
+    ClientConfig.MAS: (3, 'ma_auth.pem'),
+    ClientConfig.PES: (4, 'pe_auth.pem'),
 }
 def make_key_config_file(args):
     key_config = {}
-    key_id = 1
     for k, v in auth_to_key_files.items():
-        key_config[k] = {key_id: v}
-        key_id += 1
+        auth_id, filename = v
+        fullpath = os.path.join(args.basedir, args.key_dir, filename)
+        key_config[k] = {auth_id: fullpath}
     write_file(args, key_config, args.key_config)
 
 def make_config_files(arg):
     make_db_config_file(arg)
+    make_client_config_file(arg)
     make_key_config_file(arg)
 
 def main():
