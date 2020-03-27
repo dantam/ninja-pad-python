@@ -33,8 +33,9 @@ class Client:
         return crypto_client.encrypt(otp.encode())
 
     def encrypt_location(self, location):
-        la = self.client_config.get_location_auth()
-        return la.encrypt(location)
+        la_id = self.client_config.get_location_auth()
+        crypto_client = self.get_crypto_client(ClientConfig.LAS, la_id)
+        return crypto_client.encrypt(location)
 
     def log_entry(self, time, location):
         return (
