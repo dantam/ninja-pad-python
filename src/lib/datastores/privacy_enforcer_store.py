@@ -5,7 +5,7 @@ from lib.datastores.base_location_log import BaseLocationLog
 
 class PrivacyEnforcerStore(BaseLocationLog):
     def __init__(self, datastore_config, index=0):
-        config = datastore_config.get_privacy_enforcer_logs_config()[index]
+        config = datastore_config.get_privacy_enforcer_store_config()[index]
         super().__init__(config)
 
     def get_table(self):

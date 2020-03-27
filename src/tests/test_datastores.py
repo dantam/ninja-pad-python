@@ -39,7 +39,7 @@ db_config = {
         DC.DATABASE_ENGINE: DE.SQLITE,
         DC.DATABASE_FILE: '',
     }],
-    DC.PRIVACY_ENFORCER_LOGS: [{
+    DC.PRIVACY_ENFORCER_STORE: [{
         DC.DATABASE_ENGINE: DE.SQLITE,
         DC.DATABASE_FILE: '',
     }],
@@ -109,7 +109,7 @@ class TestDatastores(unittest.TestCase):
             'encrypted_otp': 'otp',
         }
         config = db_config
-        del(config[DC.PRIVACY_ENFORCER_LOGS])
+        del(config[DC.PRIVACY_ENFORCER_STORE])
         with patch('builtins.open', mock_open(read_data=json.dumps(config))), \
             self.assertRaises(ConfigMissingException):
                 self.basic_test(

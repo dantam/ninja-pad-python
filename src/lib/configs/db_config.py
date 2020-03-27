@@ -32,7 +32,7 @@ class DatastoreConfig(BaseDatastoreConfig):
     LOCATION_LOGS = 'location_logs'
     CONTAMINATION_LOGS = 'contamination_logs'
     NOTIFICATION_LOGS = 'notification_logs'
-    PRIVACY_ENFORCER_LOGS = 'privacy_enforcer_logs'
+    PRIVACY_ENFORCER_STORE = 'privacy_enforcer_STORE'
     ON_DEVICE_STORE = "on_device_store"
 
     def __init__(self, config_file):
@@ -48,8 +48,8 @@ class DatastoreConfig(BaseDatastoreConfig):
     def get_notification_logs_config(self):
         return self.must_get_value(DatastoreConfig.NOTIFICATION_LOGS)
 
-    def get_privacy_enforcer_logs_config(self):
-        return self.must_get_value(DatastoreConfig.PRIVACY_ENFORCER_LOGS)
+    def get_privacy_enforcer_store_config(self):
+        return self.must_get_value(DatastoreConfig.PRIVACY_ENFORCER_STORE)
 
     def get_on_device_store_config(self):
         return self.must_get_value(DatastoreConfig.ON_DEVICE_STORE)
