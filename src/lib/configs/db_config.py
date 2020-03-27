@@ -32,7 +32,7 @@ class DatastoreConfig(BaseDatastoreConfig):
     LOCATION_LOGS = 'location_logs'
     CONTAMINATION_LOGS = 'contamination_logs'
     NOTIFICATION_LOGS = 'notification_logs'
-    PRIVACY_ENFORCER_STORE = 'privacy_enforcer_STORE'
+    PRIVACY_ENFORCER_STORE = 'privacy_enforcer_store'
     ON_DEVICE_STORE = "on_device_store"
 
     def __init__(self, config_file):
