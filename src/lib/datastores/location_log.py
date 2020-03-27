@@ -1,6 +1,7 @@
 import datetime
 import sqlalchemy as db
 
+from lib.configs.db_config import DatastoreTableNames
 from lib.datastores.base_location_log import BaseLocationLog
 
 class LocationLog(BaseLocationLog):
@@ -10,7 +11,7 @@ class LocationLog(BaseLocationLog):
 
     def get_table(self):
         return db.Table(
-            'location_log', self.metadata,
+            DatastoreTableNames.LOCATION_LOG, self.metadata,
             db.Column('time', db.DATETIME),
             db.Column('encrypted_location', db.VARCHAR(256)),
             db.Column('encrypted_otp', db.VARCHAR(256)),

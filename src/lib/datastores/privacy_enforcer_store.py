@@ -1,5 +1,6 @@
 import sqlalchemy as db
 
+from lib.configs.db_config import DatastoreTableNames
 from lib.datastores.base_location_log import BaseLocationLog
 
 class PrivacyEnforcerStore(BaseLocationLog):
@@ -9,7 +10,7 @@ class PrivacyEnforcerStore(BaseLocationLog):
 
     def get_table(self):
         return db.Table(
-            'privacy_enforcer_store', self.metadata,
+            DatastoreTableNames.PRIVACY_ENFORCER_STORE, self.metadata,
             db.Column('time', db.DATETIME),
             db.Column('encrypted_location', db.VARCHAR(256)),
             db.Column('encrypted_otp', db.VARCHAR(256)),

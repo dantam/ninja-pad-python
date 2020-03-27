@@ -1,6 +1,7 @@
 import datetime
 import sqlalchemy as db
 
+from lib.configs.db_config import DatastoreTableNames
 from lib.datastores.base_datastore import BaseDatastore
 
 class NotificationLog(BaseDatastore):
@@ -10,7 +11,7 @@ class NotificationLog(BaseDatastore):
 
     def get_table(self):
         return db.Table(
-            'notification_log', self.metadata,
+            DatastoreTableNames.NOTIFICATION_LOG, self.metadata,
             db.Column('time', db.DATETIME),
             db.Column('encrypted_otp', db.VARCHAR(256)),
         )

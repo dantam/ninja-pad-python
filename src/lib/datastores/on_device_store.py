@@ -1,6 +1,7 @@
 import datetime
 import sqlalchemy as db
 
+from lib.configs.db_config import DatastoreTableNames
 from lib.datastores.base_datastore import BaseDatastore
 
 class OnDeviceStore(BaseDatastore):
@@ -10,7 +11,7 @@ class OnDeviceStore(BaseDatastore):
 
     def get_table(self):
         return db.Table(
-            'on_device_store', self.metadata,
+            DatastoreTableNames.ON_DEVICE_STORE, self.metadata,
             db.Column('time', db.DATETIME),
             db.Column('person_auth_id', db.INTEGER),
             db.Column('salted_otp', db.VARCHAR(256)),

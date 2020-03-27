@@ -74,3 +74,11 @@ class SQLiteConfig(BaseDatastoreConfig):
             self.config.get(BaseDatastoreConfig.DATABASE_HOST, ''),
             self.config.get(BaseDatastoreConfig.DATABASE_FILE, ''),
          )
+
+class DatastoreTableNames:
+    LOCATION_LOG = 'location_log'
+    CONTAMINATION_LOG = 'contamination_log'
+    NOTIFICATION_LOG = 'notification_log'
+    PRIVACY_ENFORCER_STORE = 'privacy_enforcer_store'
+    ON_DEVICE_STORE = "on_device_store"
+

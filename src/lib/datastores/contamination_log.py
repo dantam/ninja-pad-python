@@ -1,6 +1,7 @@
 import datetime
 import sqlalchemy as db
 
+from lib.configs.db_config import DatastoreTableNames
 from lib.datastores.base_datastore import BaseDatastore
 
 class ContaminationLog(BaseDatastore):
@@ -10,7 +11,7 @@ class ContaminationLog(BaseDatastore):
 
     def get_table(self):
         return db.Table(
-            'contamination_log', self.metadata,
+            DatastoreTableNames.CONTAMINATION_LOG, self.metadata,
             db.Column('time', db.DATETIME),
             db.Column('encrypted_location', db.VARCHAR(256)),
         )

@@ -8,6 +8,7 @@ from unittest.mock import (
 )
 from lib.configs.db_config import (
     DatastoreConfig as DC,
+    DatastoreTableNames as Table,
     DatabaseEngines as DE,
     ConfigMissingException,
 )
@@ -49,10 +50,11 @@ db_config = {
     mock_open(read_data=json.dumps(db_config))
 )
 class TestDatastores(unittest.TestCase):
-    def basic_test(self, log_wrapper, **entry):
+    def basic_test(self, log_wrapper, table_name, **entry):
         log = log_wrapper(DC('mock_file'))
         self.assertNotEqual(log, None)
         log.create()
+        self.assertEqual(log.table.name, table_name)
         rs = log.query()
         self.assertEqual(rs, [])
         now = datetime.datetime.now()
@@ -68,34 +70,38 @@ class TestDatastores(unittest.TestCase):
 
     def test_notification_log(self):
         entry = {'encrypted_otp': 'otp'}
-        self.basic_test(NotificationLog, **entry)
+        self.basic_test(NotificationLog, Table.NOTIFICATION_LOG, **entry)
 
     def test_on_device_store(self):
         entry = {
             'person_auth_id': 'pa_id',
             'salted_otp': 'salted_otp',
          }
-        self.basic_test(OnDeviceStore, **entry)
+        self.basic_test(OnDeviceStore, Table.ON_DEVICE_STORE, **entry)
 
     def test_location_log(self):
         entry = {
             'encrypted_location': 'loc',
             'encrypted_otp': 'otp',
         }
-        self.basic_test(LocationLog, **entry)
+        self.basic_test(LocationLog, Table.LOCATION_LOG, **entry)
 
     def test_contamination_log(self):
         entry = {
             'encrypted_location': 'loc',
         }
-        self.basic_test(ContaminationLog, **entry)
+        self.basic_test(ContaminationLog, Table.CONTAMINATION_LOG, **entry)
 
     def test_privacy_enforcer_store(self):
         entry = {
             'encrypted_location': 'loc',
             'encrypted_otp': 'otp',
         }
-        self.basic_test(PrivacyEnforcerStore, **entry)
+        self.basic_test(
+            PrivacyEnforcerStore,
+            Table.PRIVACY_ENFORCER_STORE,
+            **entry
+        )
 
     def test_missing_log_config(self):
         entry = {
@@ -106,7 +112,11 @@ class TestDatastores(unittest.TestCase):
         del(config[DC.PRIVACY_ENFORCER_LOGS])
         with patch('builtins.open', mock_open(read_data=json.dumps(config))), \
             self.assertRaises(ConfigMissingException):
-                self.basic_test(PrivacyEnforcerStore, **entry)
+                self.basic_test(
+                    PrivacyEnforcerStore,
+                    Table.PRIVACY_ENFORCER_STORE,
+                    **entry
+                )
 
 if __name__ == '__main__':
     unittest.main()
