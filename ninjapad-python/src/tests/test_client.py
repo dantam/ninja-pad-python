@@ -7,12 +7,18 @@ from tempfile import NamedTemporaryFile
 from unittest.mock import (
     mock_open,
     patch,
+    MagicMock,
 )
 from lib.configs.client_config import ClientConfig
 from lib.client import Client
+from lib.crypto import CryptoClient
 from lib.person_auth import PersonAuthority as PA
 from lib.location_auth import LocationAuthority as LA
-
+from lib.privacy_enforcer import (
+    make_payload,
+    json_to_bytes,
+    PrivacyEnforcer as PE,
+)
 def setup_configs(
     person_auths,
     location_auths,
@@ -110,9 +116,29 @@ class TestClient(unittest.TestCase):
             self.assertEqual(location, decrypted_location)
             self.assertNotEqual(encrypted_location, encrypted_location_2)
 
-
     def test_log_location(self):
-        pass
+        with writeable_tempfile() as pkeys_config, \
+                writeable_tempfile() as pem_file:
+            pe = PE()
+            mock_mapping = self.simulate_env(
+                pkeys_config,
+                pem_file,
+                pe,
+                {ClientConfig.PES: (3, pem_file.name)},
+            )
+            with patch('builtins.open', side_effect=mock_mapping):
+                client = Client('mock_file')
+                location = b'abcd'
+                time = 123
+                otp = b'otp'
+                client.encrypt_one_time_pad = MagicMock(return_value=otp)
+                client.encrypt_location = MagicMock(return_value=location)
+                crypto_client = MagicMock()
+                client.get_crypto_client = MagicMock(return_value=crypto_client)
+                client.log_entry(time, location)
+                crypto_client.encrypt.assert_called_with(
+                    json_to_bytes(make_payload(time, location, otp)),
+                )
 
 if __name__ == '__main__':
     unittest.main()

@@ -5,7 +5,7 @@ from lib.configs.client_config import ClientConfig
 from lib.configs.authority_public_keys_config import (
     AuthorityPublicKeysConfig as APKC,
 )
-from lib.crypto import CryptoClient
+from lib.privacy_enforcer import PrivacyEnforcerClient
 
 class Client:
     def __init__(self, config_file):
@@ -38,8 +38,11 @@ class Client:
         return crypto_client.encrypt(location)
 
     def log_entry(self, time, location):
-        return (
+        pe_id = self.client_config.get_privacy_enforcer()
+        crypto_client = self.get_crypto_client(ClientConfig.PES, pe_id)
+        pe_client = PrivacyEnforcerClient(crypto_client)
+        return pe_client.encrypt(
             time,
-            self.encrypt_location(),
+            self.encrypt_location(location),
             self.encrypt_one_time_pad(),
         )
