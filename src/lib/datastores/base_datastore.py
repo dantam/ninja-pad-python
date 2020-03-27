@@ -7,7 +7,6 @@ class BaseDatastore:
     def __init__(self, datastore_config):
         self.config = ConfigFactory.get(datastore_config)
         self.engine = db.create_engine(self.config.get_create_engine())
-        self.connection = self.engine.connect()
         self.metadata = db.MetaData()
         self.table = self.get_table()
         self.create()
@@ -35,8 +34,10 @@ class BaseDatastore:
 
     def query(self, where_clause):
         query = db.select([self.table]).where(where_clause)
-        return self.connection.execute(query).fetchall()
+        with self.engine.connect() as connection:
+            return connection.execute(query).fetchall()
 
     def delete(self, where_clause):
         query = self.table.delete().where(where_clause)
-        return self.connection.execute(query)
+        with self.engine.connect() as connection:
+               return connection.execute(query)

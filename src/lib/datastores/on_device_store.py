@@ -23,7 +23,8 @@ class OnDeviceStore(BaseDatastore):
             salted_otp=salted_otp,
             person_auth_id=person_auth_id
         )
-        self.connection.execute(query)
+        with self.engine.connect() as connection:
+            return connection.execute(query)
 
     def get_where(self, times, salted_otp, person_auth_id):
         return super().get_where(

@@ -20,7 +20,8 @@ class ContaminationLog(BaseDatastore):
             time=time,
             encrypted_location=encrypted_location,
         )
-        self.connection.execute(query)
+        with self.engine.connect() as connection:
+            connection.execute(query)
 
     def get_where(self, times, encrypted_location):
         column_value_map = {

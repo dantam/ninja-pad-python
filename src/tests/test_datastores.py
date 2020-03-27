@@ -50,8 +50,8 @@ db_config = {
     mock_open(read_data=json.dumps(db_config))
 )
 class TestDatastores(unittest.TestCase):
-    def basic_test(self, log_wrapper, table_name, **entry):
-        log = log_wrapper(DC('mock_file'))
+    def basic_test(self, db_wrapper, table_name, **entry):
+        log = db_wrapper(DC('mock_file'))
         self.assertNotEqual(log, None)
         log.create()
         self.assertEqual(log.table.name, table_name)

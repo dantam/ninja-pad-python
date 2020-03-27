@@ -21,7 +21,8 @@ class NotificationLog(BaseDatastore):
             time=time,
             encrypted_otp=encrypted_otp
         )
-        self.connection.execute(query)
+        with self.engine.connect() as connection:
+            connection.execute(query)
 
     def get_where(self, times, encrypted_otp):
         return super().get_where(
