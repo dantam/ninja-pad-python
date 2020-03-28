@@ -49,8 +49,8 @@ class UserClient:
             encrypted_otp,
         )
 
-    def log_private_entry(self, time, encrypted_otp, person_auth_id):
-        return selfon_device_store.insert(
+    def log_private_entry(self, time, salted_otp, person_auth_id):
+        return self.on_device_store.insert(
             time,
             salted_otp,
             person_auth_id,

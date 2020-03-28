@@ -2,6 +2,7 @@ import argparse
 import datetime
 import json
 import os
+import random
 
 from lib.configs.db_config import (
     DatastoreConfig as DC,
@@ -20,6 +21,9 @@ from lib.clients.user_client import UserClient
 from lib.configs.db_config import (
     ConfigFactory,
     DatastoreConfig,
+)
+from lib.datastores.on_device_store import (
+    OnDeviceStore,
 )
 from lib.auths.privacy_enforcer import (
     PrivacyEnforcer,
@@ -44,6 +48,12 @@ def get_args():
         default=60,
         type=int,
         help='number of logs per hour',
+    )
+    parser.add_argument(
+        '--patient_zero_prob',
+        default=0.001,
+        type=float,
+        help='probability user catches from without contact',
     )
 
     parser = add_shared_args(parser)
@@ -70,7 +80,8 @@ class Simulation:
         )
         db_config = DatastoreConfig(db_config)
         privacy_enforcer = PrivacyEnforcer(db_config)
-        return UserClient(client_config, privacy_enforcer)
+        on_device_store = OnDeviceStore(db_config)
+        return UserClient(client_config, privacy_enforcer, on_device_store)
 
     def run(self):
         sim_log = []
@@ -79,7 +90,6 @@ class Simulation:
             today = start + datetime.timedelta(days=day)
             self.run_users(today)
             self.run_medical_auths()
-            self.run_medical_personal_auths()
             self.run_location_auths()
             self.run_location_auths_again()
             sim_log.append({
@@ -107,14 +117,16 @@ class Simulation:
             log_time = today + datetime.timedelta(seconds=delta_seconds * i)
             for x, y in zip(xpos[i, 1:], ypos[i, 1:]):
                 location = '{}:{}'.format(x, y)
-                u.log_entry(log_time, location.encode())
+                u.log_entry(log_time, location.encode(), otp)
+                otp, pa_id = u.encrypt_one_time_pad()
+                u.log_private_entry(log_time, otp, pa_id)
 
     def run_medical_auths(self):
         pass
-    def run_medical_personal_auths(self):
-        pass
+
     def run_location_auths(self):
         pass
+
     def run_location_auths_again(self):
         pass
 
