@@ -11,7 +11,11 @@ from lib.configs.db_config import (
 from lib.configs.client_config import ClientConfig
 from lib.crypto import Crypto
 from demo.constants import Constants
-from demo.shared_params import add_shared_args
+from demo.brownian import brownian
+from demo.shared_params import (
+    add_shared_args,
+    add_brownian_args,
+)
 from lib.clients.user_client import UserClient
 from lib.configs.db_config import (
     ConfigFactory,
@@ -38,9 +42,12 @@ def get_args():
     parser.add_argument(
         '--user_log_frequency',
         default=60,
+        type=int,
         help='number of logs per hour',
     )
+
     parser = add_shared_args(parser)
+    parser = add_brownian_args(parser)
     return parser.parse_args()
 
 class Simulation:
@@ -67,8 +74,10 @@ class Simulation:
 
     def run(self):
         sim_log = []
+        start = datetime.datetime.now() - datetime.timedelta(days=365)
         for day in range(self.num_days):
-            self.run_users()
+            today = start + datetime.timedelta(days=day)
+            self.run_users(today)
             self.run_medical_auths()
             self.run_medical_personal_auths()
             self.run_location_auths()
@@ -78,10 +87,28 @@ class Simulation:
             })
         return sim_log
 
-    def run_users(self):
-        for u in self.users.values():
-            u.log_entry(datetime.datetime.now(), b'a')
-        pass
+    def brownian(self):
+        return brownian(
+            len(self.users),
+            24 * self.args.user_log_frequency, # num steps
+            24 * 60, # total time
+            self.args.speed, # speed
+            0,  # min val
+            1000, # max val
+            0 # round to int
+        )
+
+    def run_users(self, today):
+        xpos = self.brownian()
+        ypos = self.brownian()
+        num_entries = len(xpos[0, 1:])
+        delta_seconds = 60 * 60 * 24 / num_entries
+        for i, u in enumerate(self.users.values()):
+            log_time = today + datetime.timedelta(seconds=delta_seconds * i)
+            for x, y in zip(xpos[i, 1:], ypos[i, 1:]):
+                location = '{}:{}'.format(x, y)
+                u.log_entry(log_time, location.encode())
+
     def run_medical_auths(self):
         pass
     def run_medical_personal_auths(self):

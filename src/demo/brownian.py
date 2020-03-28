@@ -4,6 +4,8 @@ import numpy as np
 from math import sqrt
 from scipy.stats import norm
 
+from demo.shared_params import add_brownian_args
+
 def make_bounce(minv, maxv):
     def bounce(oldval, delta):
         val = oldval + delta
@@ -31,17 +33,14 @@ def brownian(numx, nsteps, dt, delta, xmin, xmax, dec, out=None):
     bounce.accumulate(v, axis=1, out=out, dtype=np.object).astype(np.int)
     if dec != None:
         out = np.round(out, dec)
+    if dec == 0:
+        out = out.astype(int)
+
     return out
 
 def get_args():
     parser = argparse.ArgumentParser(
         description="Run simulation",
-    )
-    parser.add_argument(
-        '--speed',
-        default=2,
-        type=int,
-        help='pos at time t is normal with mean x0, variance is delta**2*t',
     )
     parser.add_argument(
         '--num_steps',
@@ -55,30 +54,7 @@ def get_args():
         type=int,
         help='number of time units to simulate',
     )
-    parser.add_argument(
-        '--xmin',
-        default=0,
-        type=int,
-        help='minimum value of x',
-    )
-    parser.add_argument(
-        '--xmax',
-        default=100,
-        type=int,
-        help='max value of x',
-    )
-    parser.add_argument(
-        '--numx',
-        default=1,
-        type=int,
-        help='number of x to simulate',
-    )
-    parser.add_argument(
-        '--round',
-        default=None,
-        type=int,
-        help='round at the last step',
-    )
+    parser = add_brownian_args(parser)
     return parser.parse_args()
 
 def main():

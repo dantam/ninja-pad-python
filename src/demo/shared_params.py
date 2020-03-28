@@ -59,3 +59,36 @@ def add_shared_args(parser):
         help='postfix to public key files',
     )
     return parser
+
+def add_brownian_args(parser):
+    parser.add_argument(
+        '--speed',
+        default=2,
+        type=int,
+        help='pos at time t is normal with mean x0, variance is delta**2*t',
+    )
+    parser.add_argument(
+        '--xmin',
+        default=0,
+        type=int,
+        help='minimum value of x',
+    )
+    parser.add_argument(
+        '--xmax',
+        default=100,
+        type=int,
+        help='max value of x',
+    )
+    parser.add_argument(
+        '--numx',
+        default=1,
+        type=int,
+        help='number of x to simulate',
+    )
+    parser.add_argument(
+        '--round',
+        default=None,
+        type=int,
+        help='round at the last step',
+    )
+    return parser
