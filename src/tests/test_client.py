@@ -49,7 +49,7 @@ def writeable_tempfile():
 
 class TestClient(unittest.TestCase):
     def mock_user_client(self):
-        return UserClient('mock_file', None)
+        return UserClient('mock_file', None, None)
 
     def simulate_env(self,
         pkeys_config,
@@ -98,7 +98,7 @@ class TestClient(unittest.TestCase):
             )
             with patch('builtins.open', side_effect=mock_mapping):
                 client = self.mock_user_client()
-                encrypted_otp = client.encrypt_one_time_pad()
+                encrypted_otp, pa_id = client.encrypt_one_time_pad()
                 otp = pa.decrypt(encrypted_otp)
             self.assertEqual(otp, TestClient.fake_otp.encode())
 
@@ -139,7 +139,7 @@ class TestClient(unittest.TestCase):
             )
             with patch('builtins.open', side_effect=mock_mapping):
                 privacy_enforcer = MagicMock()
-                client = UserClient('mock_file', privacy_enforcer)
+                client = UserClient('mock_file', privacy_enforcer, 'db_config')
                 location = b'abcd'
                 time = 123
                 otp = b'otp'
@@ -147,7 +147,7 @@ class TestClient(unittest.TestCase):
                 client.encrypt_location = MagicMock(return_value=location)
                 crypto_client = MagicMock()
                 client.get_crypto_client = MagicMock(return_value=crypto_client)
-                client.log_entry(time, location)
+                client.log_entry(time, location, otp)
                 privacy_enforcer.upload.assert_called_with(
                     time, location, otp,
                 )
