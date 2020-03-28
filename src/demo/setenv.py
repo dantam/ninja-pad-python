@@ -59,9 +59,9 @@ def get_args():
         help='name of client file',
     )
     parser.add_argument(
-        '--token_length',
+        '--one_time_pad_length',
         default=256,
-        help='number of bytes for secrets',
+        help='number of bytes for one time pad',
     )
     parser.add_argument(
         '--public_key_file_extension',
@@ -93,7 +93,7 @@ auth_to_auth_ids = {
 def make_client_config_file(args):
     keys_file = os.path.join(args.basedir, args.config_dir, args.key_config)
     payload = {
-        ClientConfig.TOKEN_LENGTH: args.token_length,
+        ClientConfig.ONE_TIME_PAD_LENGTH: args.one_time_pad_length,
         ClientConfig.PUBLIC_KEYS_FILE: keys_file,
     }
     payload.update(auth_to_auth_ids)

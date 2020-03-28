@@ -23,7 +23,7 @@ def setup_configs(
     person_auths,
     location_auths,
     privacy_enforcers,
-    token_length,
+    one_time_pad_length,
     public_keys_file,
     auth_type_to_auth_id_and_pem_files,
 ):
@@ -31,7 +31,7 @@ def setup_configs(
         ClientConfig.PAS: person_auths,
         ClientConfig.LAS: location_auths,
         ClientConfig.PES: privacy_enforcers,
-        ClientConfig.TOKEN_LENGTH: token_length,
+        ClientConfig.ONE_TIME_PAD_LENGTH: one_time_pad_length,
         ClientConfig.PUBLIC_KEYS_FILE: public_keys_file,
     }
     public_keys_config = {}

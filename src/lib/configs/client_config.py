@@ -6,7 +6,7 @@ class ClientConfig:
     LAS = 'location_authorities'
     MAS = 'medical_authorities'
     PES = 'privacy_enforcers'
-    TOKEN_LENGTH = 'token_length'
+    ONE_TIME_PAD_LENGTH = 'one_time_pad_length'
     PUBLIC_KEYS_FILE = 'public_keys_file'
 
     def __init__(self, config_file):
@@ -43,8 +43,8 @@ class ClientConfig:
     def get_privacy_enforcer(self):
         return self.get_random_value(ClientConfig.PES)
 
-    def get_token_len(self):
-        return self.get_value(ClientConfig.TOKEN_LENGTH)
+    def get_one_time_pad_length(self):
+        return self.get_value(ClientConfig.ONE_TIME_PAD_LENGTH)
 
     def get_public_keys_file(self):
         return self.get_value(ClientConfig.PUBLIC_KEYS_FILE)

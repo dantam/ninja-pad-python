@@ -27,7 +27,7 @@ class UserClient:
         return self.crypto_clients[auth_type][auth_id]
 
     def encrypt_one_time_pad(self):
-        otp = secrets.token_hex(self.client_config.get_token_len())
+        otp = secrets.token_hex(self.client_config.get_one_time_pad_length())
         pa_id = self.client_config.get_person_auth()
         crypto_client = self.get_crypto_client(ClientConfig.PAS, pa_id)
         return crypto_client.encrypt(otp.encode())
