@@ -10,6 +10,7 @@ from lib.configs.db_config import (
 from lib.configs.client_config import ClientConfig
 from lib.crypto import Crypto
 from demo.constants import Constants
+from demo.shared_params import add_shared_args
 
 store_to_files = {
     DC.ON_DEVICE_STORE: Tables.ON_DEVICE_STORE,
@@ -21,63 +22,9 @@ store_to_files = {
 
 def get_args():
     parser = argparse.ArgumentParser(
-        description="Set up database config",
+        description="Set up config and key files",
     )
-    parser.add_argument(
-        '--basedir',
-        default='{}/{}/'.format(os.getcwd(), Constants.BASE_DIR),
-        help='absolute path to directory',
-    )
-    parser.add_argument(
-        '--config_dir',
-        default=Constants.CONFIG_DIR,
-        help='relative path from basedir to config directory',
-    )
-    parser.add_argument(
-        '--db_dir',
-        default='dbs',
-        help='relative path from basedir to db directory',
-    )
-    parser.add_argument(
-        '--db_config',
-        default='db_conf.json',
-        help='name of output file',
-    )
-    parser.add_argument(
-        '--key_dir',
-        default='keys'.format(os.getcwd()),
-        help='relative path from basedir to key directory',
-    )
-    parser.add_argument(
-        '--key_config',
-        default='key_conf.json',
-        help='name of key file',
-    )
-    parser.add_argument(
-        '--client_config',
-        default=Constants.CLIENT_CONFIG,
-        help='name of client file',
-    )
-    parser.add_argument(
-        '--one_time_pad_length',
-        default=256,
-        help='number of bytes for one time pad',
-    )
-    parser.add_argument(
-        '--key_size',
-        default=2048,
-        help='number of bits for one time pad',
-    )
-    parser.add_argument(
-        '--public_exponent',
-        default=65537,
-        help='number of bits for one time pad',
-    )
-    parser.add_argument(
-        '--public_key_file_extension',
-        default='pem',
-        help='postfix to public key files',
-    )
+    parser = add_shared_args(parser)
     return parser.parse_args()
 
 def write_file(args, payload, filename):
