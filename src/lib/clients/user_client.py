@@ -55,3 +55,9 @@ class UserClient:
             salted_otp,
             person_auth_id,
         )
+
+    def get_a_person_auth_id(self):
+        return self.client_config.get_person_auth()
+
+    def get_data_for_medical_auth(self, personal_auth_id):
+        return self.on_device_store.get_latest(personal_auth_id)

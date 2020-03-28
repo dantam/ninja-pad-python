@@ -1,4 +1,3 @@
-import base64
 import json
 
 from lib.crypto import Crypto

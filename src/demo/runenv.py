@@ -28,6 +28,9 @@ from lib.datastores.on_device_store import (
 from lib.auths.privacy_enforcer import (
     PrivacyEnforcer,
 )
+from lib.auths.medical_auth import (
+    MedicalAuthorityClient,
+)
 
 def get_args():
     parser = argparse.ArgumentParser(
@@ -80,6 +83,7 @@ class Simulation:
         )
         db_config = DatastoreConfig(db_config)
         privacy_enforcer = PrivacyEnforcer(db_config)
+        self.med_client = MedicalAuthorityClient(db_config)
         on_device_store = OnDeviceStore(db_config)
         return UserClient(client_config, privacy_enforcer, on_device_store)
 
@@ -122,7 +126,11 @@ class Simulation:
                 u.log_private_entry(log_time, otp, pa_id)
 
     def run_medical_auths(self):
-        pass
+        for i, u in enumerate(self.users.values()):
+            if random.random() < self.args.patient_zero_prob:
+                pa_id = u.get_a_person_auth_id()
+                payload = u.get_data_for_medical_auth(pa_id)[0]
+                self.med_client.upload(payload[0], payload[2])
 
     def run_location_auths(self):
         pass
