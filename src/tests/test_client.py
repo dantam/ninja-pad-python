@@ -9,14 +9,17 @@ from unittest.mock import (
     patch,
     MagicMock,
 )
+from lib.configs.db_config import (
+    DatastoreConfig as DC,
+    DatabaseEngines as DE,
+)
+from lib.datastores.location_log import LocationLog
 from lib.configs.client_config import ClientConfig
 from lib.clients.user_client import UserClient
 from lib.crypto import CryptoClient
 from lib.auths.person_auth import PersonAuthority as PA
 from lib.auths.location_auth import LocationAuthority as LA
 from lib.auths.privacy_enforcer import (
-    make_payload,
-    json_to_bytes,
     PrivacyEnforcer as PE,
 )
 def setup_configs(
@@ -119,7 +122,12 @@ class TestClient(unittest.TestCase):
     def test_log_location(self):
         with writeable_tempfile() as pkeys_config, \
                 writeable_tempfile() as pem_file:
-            pe = PE()
+            dc = MagicMock()
+            dc.get_location_logs_config = MagicMock(return_value = [{
+                DC.DATABASE_ENGINE: DE.SQLITE,
+                DC.DATABASE_FILE: '',
+            }])
+            pe = PE(dc)
             mock_mapping = self.simulate_env(
                 pkeys_config,
                 pem_file,
@@ -136,8 +144,8 @@ class TestClient(unittest.TestCase):
                 crypto_client = MagicMock()
                 client.get_crypto_client = MagicMock(return_value=crypto_client)
                 client.log_entry(time, location)
-                crypto_client.encrypt.assert_called_with(
-                    json_to_bytes(make_payload(time, location, otp)),
+                crypto_client.upload.assert_called_with(
+                    time, location, otp,
                 )
 
 if __name__ == '__main__':

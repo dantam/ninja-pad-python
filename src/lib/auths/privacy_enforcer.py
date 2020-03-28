@@ -2,28 +2,25 @@ import base64
 import json
 
 from lib.crypto import Crypto
+from lib.datastores.location_log import LocationLog
 
 class PrivacyEnforcer(Crypto):
-    pass
+    def __init__(self, config):
+        self.location_log = LocationLog(config)
+        super().__init__()
 
-def bytes_to_string(b):
-    return base64.b64encode(b).decode('ascii')
-
-def json_to_bytes(j):
-    return json.dumps(j).encode()
-
-def make_payload(time, loc, otp):
-    return {
-        'time': time,
-        'encrypted_location': bytes_to_string(loc),
-        'encrypted_otp': bytes_to_string(otp),
-    }
+    def upload(self, time, encrypted_location, encrypted_otp):
+        self.location_log.insert(time, encrypted_location, encrypted_otp)
 
 class PrivacyEnforcerClient():
-    def __init__(self, crypto_client):
-        self.crypto_client = crypto_client
+    def __init__(self, privacy_enforcer):
+        self.privacy_enforcer = privacy_enforcer
 
-    def encrypt(self, time, encrypted_location, encrypted_otp):
-        payload = make_payload(time, encrypted_location, encrypted_otp)
-        return self.crypto_client.encrypt(json_to_bytes(payload))
+    # skip security for demo
+    def upload(self, time, encrypted_location, encrypted_otp):
+        return self.privacy_enforcer.upload(
+            time,
+            encrypted_location,
+            encrypted_otp,
+        )
 

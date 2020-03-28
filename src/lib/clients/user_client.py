@@ -41,7 +41,7 @@ class UserClient:
         pe_id = self.client_config.get_privacy_enforcer()
         crypto_client = self.get_crypto_client(ClientConfig.PES, pe_id)
         pe_client = PrivacyEnforcerClient(crypto_client)
-        return pe_client.encrypt(
+        return pe_client.upload(
             time,
             self.encrypt_location(location),
             self.encrypt_one_time_pad(),
