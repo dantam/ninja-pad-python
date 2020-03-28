@@ -21,7 +21,7 @@ def make_ubounce(minv, maxv):
     bounce = make_bounce(minv, maxv)
     return np.frompyfunc(bounce, 2, 1)
 
-def brownian(numx, nsteps, dt, delta, xmin, xmax, out=None):
+def brownian(numx, nsteps, dt, delta, xmin, xmax, dec, out=None):
     inits = np.random.randint(xmin, xmax, (numx, 1))
     r = norm.rvs(size=(numx,) + (nsteps,), scale=delta*sqrt(dt))
     v = np.concatenate((inits, r), axis=1)
@@ -29,6 +29,8 @@ def brownian(numx, nsteps, dt, delta, xmin, xmax, out=None):
     if out is None:
         out = np.empty(v.shape)
     bounce.accumulate(v, axis=1, out=out, dtype=np.object).astype(np.int)
+    if dec != None:
+        out = np.round(out, dec)
     return out
 
 def get_args():
@@ -71,6 +73,12 @@ def get_args():
         type=int,
         help='number of x to simulate',
     )
+    parser.add_argument(
+        '--round',
+        default=None,
+        type=int,
+        help='round at the last step',
+    )
     return parser.parse_args()
 
 def main():
@@ -83,6 +91,7 @@ def main():
         args.speed,
         args.xmin,
         args.xmax,
+        args.round,
     )
     print(motion)
 
