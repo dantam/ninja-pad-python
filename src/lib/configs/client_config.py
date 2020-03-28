@@ -44,7 +44,7 @@ class ClientConfig:
         return self.get_random_value(ClientConfig.PES)
 
     def get_one_time_pad_length(self):
-        return self.get_value(ClientConfig.ONE_TIME_PAD_LENGTH)
+        return int(self.get_value(ClientConfig.ONE_TIME_PAD_LENGTH))
 
     def get_public_keys_file(self):
         return self.get_value(ClientConfig.PUBLIC_KEYS_FILE)

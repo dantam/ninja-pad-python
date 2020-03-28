@@ -64,6 +64,16 @@ def get_args():
         help='number of bytes for one time pad',
     )
     parser.add_argument(
+        '--key_size',
+        default=2048,
+        help='number of bits for one time pad',
+    )
+    parser.add_argument(
+        '--public_exponent',
+        default=65537,
+        help='number of bits for one time pad',
+    )
+    parser.add_argument(
         '--public_key_file_extension',
         default='pem',
         help='postfix to public key files',
@@ -124,7 +134,7 @@ def make_keys(args):
     for k, v in auth_to_key_files.items():
         auth_id, filename = v
         pub_file = '{}.{}'.format(filename, args.public_key_file_extension)
-        crypto = Crypto()
+        crypto = Crypto(args.public_exponent, args.key_size)
         fullpath = os.path.join(args.basedir, args.key_dir, pub_file)
         crypto.public_key_to_file(fullpath)
         fullpath = os.path.join(args.basedir, args.key_dir, filename)
