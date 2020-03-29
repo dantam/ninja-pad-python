@@ -25,9 +25,13 @@ class NotificationLog(BaseDatastore):
             connection.execute(query)
 
     def get_where(self, times, encrypted_otp):
+        col = self.table.columns.encrypted_otp
+        column_value_map = {}
+        if encrypted_otp is not None:
+            column_value_map[col] = encrypted_otp
         return super().get_where(
             times,
-            {self.table.columns.encrypted_otp: encrypted_otp}
+            column_value_map,
         )
 
     def query(self, times=(), encrypted_otp=None):

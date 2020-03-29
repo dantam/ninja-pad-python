@@ -1,3 +1,4 @@
+import datetime
 import secrets
 
 from collections import defaultdict
@@ -8,16 +9,21 @@ from lib.configs.authority_public_keys_config import (
 from lib.auths.privacy_enforcer import (
     PrivacyEnforcerClient,
 )
+from lib.datastores.notification_log import NotificationLog
+from lib.datastores.on_device_store import OnDeviceStore
+from lib.auths.privacy_enforcer import PrivacyEnforcer
 
 class UserClient:
-    def __init__(self, client_config, privacy_enforcer, on_device_store):
+    def __init__(self, client_config, db_config):
+        self.privacy_enforcer = PrivacyEnforcer(db_config)
+        self.on_device_store = OnDeviceStore(db_config)
+        self.notification_log = NotificationLog(db_config)
+
         self.client_config = ClientConfig(client_config)
         self.public_keys_config = APKC(
             self.client_config.get_public_keys_file()
         )
         self.crypto_clients = defaultdict(defaultdict)
-        self.privacy_enforcer = privacy_enforcer
-        self.on_device_store = on_device_store
 
     def get_crypto_client(self, auth_type, auth_id):
         if auth_id in self.crypto_clients[auth_type]:
@@ -61,3 +67,17 @@ class UserClient:
 
     def get_data_for_medical_auth(self, personal_auth_id):
         return self.on_device_store.get_latest(personal_auth_id)
+
+    def has_notification(self, start_time, end_time):
+        notices = self.notification_log.query(
+            (start_time, end_time)
+        )
+        for notice in notices:
+            matches = self.on_device_store.query(
+                (notice.time - datetime.timedelta(seconds=120),
+                 notice.time + datetime.timedelta(seconds=120)),
+                salted_otp=notice.encrypted_otp
+            )
+            if len(matches) > 0:
+                return True
+        return False

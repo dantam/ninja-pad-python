@@ -21,12 +21,9 @@ from lib.configs.db_config import (
     ConfigFactory,
     DatastoreConfig,
 )
-from lib.datastores.on_device_store import OnDeviceStore
-from lib.auths.privacy_enforcer import PrivacyEnforcer
 from lib.auths.medical_auth import MedicalAuthorityClient
 from lib.auths.location_auth import (
     LocationAuthority,
-    LocationAuthorityCrypto,
 )
 
 def get_args():
@@ -82,10 +79,8 @@ class Simulation:
 
     def make_user(self):
         db_config = DatastoreConfig(self.db_config)
-        privacy_enforcer = PrivacyEnforcer(db_config)
         self.med_client = MedicalAuthorityClient(db_config)
-        on_device_store = OnDeviceStore(db_config)
-        return UserClient(self.client_config, privacy_enforcer, on_device_store)
+        return UserClient(self.client_config, db_config)
 
     def make_location_auth(self):
         db_config = DatastoreConfig(self.db_config)
@@ -114,6 +109,7 @@ class Simulation:
             sim_log.append({
                 'day': day,
             })
+            self.users_check(today)
         return sim_log
 
     def brownian(self):
@@ -153,6 +149,13 @@ class Simulation:
 
     def run_location_auths_again(self):
         pass
+
+    def users_check(self, today):
+        for i, user in enumerate(self.users.values()):
+            start_time = today - datetime.timedelta(days=28)
+            end_time = today + datetime.timedelta(days=1)
+            if user.has_notification(start_time, end_time):
+                print('user {} notified on {}'.format(i, today))
 
 def simulate(args):
     sim = Simulation(args)

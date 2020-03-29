@@ -27,9 +27,17 @@ class OnDeviceStore(BaseDatastore):
             return connection.execute(query)
 
     def get_where(self, times, salted_otp, person_auth_id):
+        column_value_map = {}
+        col = self.table.columns.salted_otp
+        if salted_otp is not None:
+            column_value_map[col] = salted_otp
+        col = self.table.columns.person_auth_id
+        if person_auth_id is not None:
+            column_value_map[col] = person_auth_id
+
         return super().get_where(
             times,
-            {self.table.columns.person_auth_id: person_auth_id}
+            column_value_map,
         )
 
     def query(self, times=(), salted_otp=None, person_auth_id=None):
