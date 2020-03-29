@@ -41,13 +41,10 @@ def make_db_config_file(args):
         }]
     write_file(args, db_config, args.db_config)
 
-auth_to_auth_ids = {
-    ClientConfig.PAS: [1],
-    ClientConfig.LAS: [2],
-    ClientConfig.MAS: [3],
-    ClientConfig.PES: [4],
-}
 def make_client_config_file(args):
+    auth_to_auth_ids = {}
+    for auth_type, id_and_file in args.auth_to_key_files.items():
+        auth_to_auth_ids[auth_type] = [id_and_file[0]]
     keys_file = os.path.join(args.basedir, args.config_dir, args.key_config)
     payload = {
         ClientConfig.ONE_TIME_PAD_LENGTH: args.one_time_pad_length,
@@ -56,16 +53,9 @@ def make_client_config_file(args):
     payload.update(auth_to_auth_ids)
     write_file(args, payload, args.client_config)
 
-auth_to_key_files = {
-    ClientConfig.PAS: (1, 'pa_auth'),
-    ClientConfig.LAS: (2, 'la_auth'),
-    ClientConfig.MAS: (3, 'ma_auth'),
-    ClientConfig.PES: (4, 'pe_auth'),
-}
-
 def make_key_config_file(args):
     key_config = {}
-    for k, v in auth_to_key_files.items():
+    for k, v in args.auth_to_key_files.items():
         auth_id, filename = v
         filename = '{}.{}'.format(filename, args.public_key_file_extension)
         fullpath = os.path.join(args.basedir, args.key_dir, filename)
@@ -73,12 +63,13 @@ def make_key_config_file(args):
     write_file(args, key_config, args.key_config)
 
 def make_config_files(args):
+    args.auth_to_key_files = json.loads(args.auth_to_key_files)
     make_db_config_file(args)
     make_client_config_file(args)
     make_key_config_file(args)
 
 def make_keys(args):
-    for k, v in auth_to_key_files.items():
+    for k, v in args.auth_to_key_files.items():
         auth_id, filename = v
         pub_file = '{}.{}'.format(filename, args.public_key_file_extension)
         crypto = Crypto(args.public_exponent, args.key_size)

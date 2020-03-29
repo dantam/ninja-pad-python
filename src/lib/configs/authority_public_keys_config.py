@@ -11,6 +11,9 @@ class AuthorityPublicKeysConfig:
             self.config = json.load(f)
         self.public_keys = defaultdict(dict)
 
+    def get_public_auth_ids(self, auth_type):
+        return self.config[auth_type].keys()
+
     def get_public_key_value(self, auth_type, auth_id):
         return self.config[auth_type][auth_id]
 

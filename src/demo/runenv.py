@@ -9,27 +9,24 @@ from lib.configs.db_config import (
     DatabaseEngines as DE,
     DatastoreTableNames as Tables,
 )
-from lib.configs.client_config import ClientConfig
-from lib.crypto import Crypto
 from demo.constants import Constants
 from demo.brownian import brownian
 from demo.shared_params import (
     add_shared_args,
     add_brownian_args,
 )
+from lib.configs.client_config import ClientConfig
 from lib.clients.user_client import UserClient
 from lib.configs.db_config import (
     ConfigFactory,
     DatastoreConfig,
 )
-from lib.datastores.on_device_store import (
-    OnDeviceStore,
-)
-from lib.auths.privacy_enforcer import (
-    PrivacyEnforcer,
-)
-from lib.auths.medical_auth import (
-    MedicalAuthorityClient,
+from lib.datastores.on_device_store import OnDeviceStore
+from lib.auths.privacy_enforcer import PrivacyEnforcer
+from lib.auths.medical_auth import MedicalAuthorityClient
+from lib.auths.location_auth import (
+    LocationAuthority,
+    LocationAuthorityCrypto,
 )
 
 def get_args():
@@ -66,35 +63,53 @@ def get_args():
 class Simulation:
     def __init__(self, args):
         self.args = args
+        self.set_configs()
         self.users = {i: self.make_user() for i in range(args.num_users)}
-        self.user_log_frequency = args.user_log_frequency
-        self.num_days = args.num_days
+        args.auth_to_key_files = json.loads(args.auth_to_key_files)
+        self.make_location_auth()
 
-    def make_user(self):
-        client_config = os.path.join(
+    def set_configs(self):
+        self.client_config = os.path.join(
             self.args.basedir,
             self.args.config_dir,
             self.args.client_config
         )
-        db_config = os.path.join(
+        self.db_config = os.path.join(
             self.args.basedir,
             self.args.config_dir,
             self.args.db_config
         )
-        db_config = DatastoreConfig(db_config)
+
+    def make_user(self):
+        db_config = DatastoreConfig(self.db_config)
         privacy_enforcer = PrivacyEnforcer(db_config)
         self.med_client = MedicalAuthorityClient(db_config)
         on_device_store = OnDeviceStore(db_config)
-        return UserClient(client_config, privacy_enforcer, on_device_store)
+        return UserClient(self.client_config, privacy_enforcer, on_device_store)
+
+    def make_location_auth(self):
+        db_config = DatastoreConfig(self.db_config)
+        private_key_file = os.path.join(
+            self.args.basedir,
+            self.args.key_dir,
+            Constants.LA_AUTH,
+        )
+        auth_id = self.args.auth_to_key_files[ClientConfig.LAS][0]
+        self.location_auth = LocationAuthority(
+            auth_id,
+            self.client_config,
+            db_config,
+            private_key_file
+        )
 
     def run(self):
         sim_log = []
         start = datetime.datetime.now() - datetime.timedelta(days=365)
-        for day in range(self.num_days):
+        for day in range(self.args.num_days):
             today = start + datetime.timedelta(days=day)
             self.run_users(today)
             self.run_medical_auths()
-            self.run_location_auths()
+            self.run_location_auths(today)
             self.run_location_auths_again()
             sim_log.append({
                 'day': day,
@@ -132,8 +147,9 @@ class Simulation:
                 payload = u.get_data_for_medical_auth(pa_id)[0]
                 self.med_client.upload(payload.time, payload.salted_otp)
 
-    def run_location_auths(self):
-        pass
+    def run_location_auths(self, today):
+        endtime = today + datetime.timedelta(days=1)
+        self.location_auth.process_contaminations(today, endtime)
 
     def run_location_auths_again(self):
         pass

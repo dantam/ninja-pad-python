@@ -18,7 +18,7 @@ from lib.configs.client_config import ClientConfig
 from lib.clients.user_client import UserClient
 from lib.crypto import CryptoClient
 from lib.auths.person_auth import PersonAuthority as PA
-from lib.auths.location_auth import LocationAuthority as LA
+from lib.auths.location_auth import LocationAuthorityCrypto as LAC
 from lib.auths.privacy_enforcer import (
     PrivacyEnforcer as PE,
 )
@@ -105,7 +105,7 @@ class TestClient(unittest.TestCase):
     def test_encrypt_location(self):
         with writeable_tempfile() as pkeys_config, \
                 writeable_tempfile() as pem_file:
-            la = LA()
+            la = LAC()
             mock_mapping = self.simulate_env(
                 pkeys_config,
                 pem_file,

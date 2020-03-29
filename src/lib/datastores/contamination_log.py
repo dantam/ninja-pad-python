@@ -24,9 +24,10 @@ class ContaminationLog(BaseDatastore):
             connection.execute(query)
 
     def get_where(self, times, encrypted_location):
-        column_value_map = {
-            self.table.columns.encrypted_location: encrypted_location,
-        }
+        col = self.table.columns.encrypted_location
+        column_value_map = {}
+        if encrypted_location is not None:
+            column_value_map[col] = encrypted_location
         return super().get_where(times, column_value_map)
 
     def query(self, times=(), encrypted_location=None):

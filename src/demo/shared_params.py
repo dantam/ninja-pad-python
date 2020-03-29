@@ -1,5 +1,7 @@
 import os
+import json
 
+from lib.configs.client_config import ClientConfig
 from demo.constants import Constants
 
 def add_shared_args(parser):
@@ -60,6 +62,18 @@ def add_shared_args(parser):
         '--public_key_file_extension',
         default='pem',
         help='postfix to public key files',
+    )
+
+    auth_to_key_files = {
+        ClientConfig.PAS: (1, Constants.PA_AUTH),
+        ClientConfig.LAS: (2, Constants.LA_AUTH),
+        ClientConfig.MAS: (3, Constants.MA_AUTH),
+        ClientConfig.PES: (4, Constants.PE_AUTH),
+    }
+    parser.add_argument(
+        '--auth_to_key_files',
+        default=json.dumps(auth_to_key_files),
+        help='json dictionary for auth ids and keys',
     )
     return parser
 

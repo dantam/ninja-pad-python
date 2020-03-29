@@ -77,3 +77,27 @@ class CryptoClient:
             encoding=serialization.Encoding.PEM,
             format=serialization.PublicFormat.SubjectPublicKeyInfo
         )
+
+class CryptoServer:
+    def __init__(self, filename):
+        self.private_key = self.private_key_from_file(filename)
+
+    def private_key_from_file(self, filename):
+        with open(filename, "rb") as f:
+            return serialization.load_pem_private_key(
+                f.read(),
+                password=None,
+                backend=default_backend()
+            )
+
+    def encrypt(self, val):
+        return self.private_key.encrypt(
+            val,
+            padding=Crypto.padding,
+        )
+
+    def decrypt(self, val):
+        return self.private_key.decrypt(
+            val,
+            padding=Crypto.padding,
+        )
