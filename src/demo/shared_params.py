@@ -14,7 +14,7 @@ auth_to_key_files = {
 auth_to_key_files_str = json.dumps(auth_to_key_files)
 
 defaults = Namespace(
-    basedir='{}/{}/'.format(os.getcwd(), Constants.BASE_DIR),
+    basedir=os.path.join(os.getcwd(), Constants.BASE_DIR),
     config_dir=Constants.CONFIG_DIR,
     db_dir='dbs',
     db_config='db_conf.json',

@@ -1,4 +1,5 @@
 import json
+import os
 import secrets
 
 class DatabaseEngines:
@@ -70,9 +71,12 @@ class SQLiteConfig(BaseDatastoreConfig):
         self.config = config
 
     def get_create_engine(self):
+        fullpath = self.config.get(BaseDatastoreConfig.DATABASE_FILE, '')
+        if fullpath != '':
+            os.makedirs(os.path.dirname(fullpath), exist_ok=True)
         return 'sqlite://{}/{}'.format(
             self.config.get(BaseDatastoreConfig.DATABASE_HOST, ''),
-            self.config.get(BaseDatastoreConfig.DATABASE_FILE, ''),
+            fullpath,
          )
 
 class DatastoreTableNames:

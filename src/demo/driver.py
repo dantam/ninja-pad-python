@@ -1,5 +1,7 @@
 import argparse
 import logging
+import os
+import shutil
 
 from demo.setenv import setenv
 from demo.runenv import Simulation, simulate
@@ -24,6 +26,16 @@ def get_args():
     add_run_args(parser)
     return parser.parse_args()
 
+def clean(args):
+    dirs = [
+        os.path.join(args.basedir, args.config_dir),
+        os.path.join(args.basedir, args.db_dir),
+        os.path.join(args.basedir, args.key_dir),
+    ]
+    for d in dirs:
+        logging.info('Removing: {}'.format(d))
+        shutil.rmtree(d, ignore_errors=True)
+
 def drive(args):
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
@@ -32,7 +44,11 @@ def drive(args):
 
     steps = args.steps.split(',')
     if 'all' in steps:
-        steps = ['s', 'r']
+        steps = ['c', 's', 'r']
+    if 'c' in steps:
+        logging.debug('clean up env')
+        clean(args)
+        logging.debug('env cleaned')
     if 's' in steps:
         logging.debug('setting env')
         setenv(args)

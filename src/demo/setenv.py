@@ -29,6 +29,7 @@ def get_args():
 
 def write_file(args, payload, filename):
     fullpath = os.path.join(args.basedir, args.config_dir, filename)
+    os.makedirs(os.path.dirname(fullpath), exist_ok=True)
     with open(fullpath, 'w') as f:
         f.write(json.dumps(payload, indent=4, sort_keys=True))
 
@@ -87,6 +88,7 @@ def make_keys(args):
         pub_file = '{}.{}'.format(filename, args.public_key_file_extension)
         crypto = Crypto(args.public_exponent, args.key_size)
         fullpath = os.path.join(args.basedir, args.key_dir, pub_file)
+        os.makedirs(os.path.dirname(fullpath), exist_ok=True)
         crypto.public_key_to_file(fullpath)
         fullpath = os.path.join(args.basedir, args.key_dir, filename)
         crypto.UNSAFE_private_key_to_file(fullpath)
