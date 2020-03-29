@@ -10,3 +10,4 @@ demo/configs/*
 demo/dbs/*
 demo/keys/*
 
+.ipynb_checkpoints
