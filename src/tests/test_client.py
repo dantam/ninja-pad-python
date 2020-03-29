@@ -1,3 +1,4 @@
+import datetime
 import json
 import tempfile
 import unittest
@@ -37,27 +38,39 @@ def setup_configs(
         ClientConfig.ONE_TIME_PAD_LENGTH: one_time_pad_length,
         ClientConfig.PUBLIC_KEYS_FILE: public_keys_file,
     }
+    sqlite_config = [{
+        DC.DATABASE_ENGINE: DE.SQLITE,
+        DC.DATABASE_FILE: '',
+    }]
+    db_config = {
+        DC.LOCATION_LOGS: sqlite_config,
+        DC.CONTAMINATION_LOGS: sqlite_config,
+        DC.NOTIFICATION_LOGS: sqlite_config,
+        DC.PRIVACY_ENFORCER_STORE: sqlite_config,
+        DC.ON_DEVICE_STORE: sqlite_config,
+    }
     public_keys_config = {}
     for auth_type, id_and_file in auth_type_to_auth_id_and_pem_files.items():
         public_keys_config[auth_type] = {
             id_and_file[0]: id_and_file[1],
         }
-    return client_config, public_keys_config
+    return client_config, public_keys_config, db_config
 
 def writeable_tempfile():
     return open(NamedTemporaryFile().name, 'w')
 
 class TestClient(unittest.TestCase):
-    def mock_user_client(self):
-        return UserClient('mock_file', None, None)
+    def mock_user_client(self, db_config):
+        return UserClient('mock_file', DC(db_config))
 
     def simulate_env(self,
         pkeys_config,
         pem_file,
+        db_config_file,
         auth,
         auth_type_to_auth_id_and_pem_files,
     ):
-        client_config, public_keys_config = setup_configs(
+        client_config, public_keys_config, db_config = setup_configs(
             [1],
             [2],
             [3],
@@ -72,13 +85,17 @@ class TestClient(unittest.TestCase):
         mock_client_config = 'mock_file'
         m1 = mock_open(read_data=json.dumps(client_config))
         m2 = mock_open(read_data=json.dumps(public_keys_config))
+        m3 = mock_open(read_data=json.dumps(db_config))
         def mock_mapping(*args, **kargs):
-            if args[0] == mock_client_config:
+            filename = args[0]
+            if filename == mock_client_config:
                 return m1()
-            if args[0] == pkeys_config.name:
+            if filename == pkeys_config.name:
                 return m2()
-            if args[0] == pem_file.name:
+            if filename == pem_file.name:
                 return pem_file_stream
+            if filename == db_config_file.name:
+                return m3()
         return mock_mapping
 
     fake_otp='ABCD'
@@ -88,32 +105,36 @@ class TestClient(unittest.TestCase):
     )
     def test_encrypt_one_time_pad(self, mock):
         with writeable_tempfile() as pkeys_config, \
-                writeable_tempfile() as pem_file:
+                writeable_tempfile() as pem_file, \
+                writeable_tempfile() as db_config:
             pa = PA()
             mock_mapping = self.simulate_env(
                 pkeys_config,
                 pem_file,
+                db_config,
                 pa,
                 {ClientConfig.PAS: (1, pem_file.name)},
             )
             with patch('builtins.open', side_effect=mock_mapping):
-                client = self.mock_user_client()
+                client = self.mock_user_client(db_config.name)
                 encrypted_otp, pa_id = client.encrypt_one_time_pad()
                 otp = pa.decrypt(encrypted_otp)
             self.assertEqual(otp, TestClient.fake_otp.encode())
 
     def test_encrypt_location(self):
         with writeable_tempfile() as pkeys_config, \
-                writeable_tempfile() as pem_file:
+                writeable_tempfile() as pem_file, \
+                writeable_tempfile() as db_config:
             la = LAC()
             mock_mapping = self.simulate_env(
                 pkeys_config,
                 pem_file,
+                db_config,
                 la,
                 {ClientConfig.LAS: (2, pem_file.name)},
             )
             with patch('builtins.open', side_effect=mock_mapping):
-                client = self.mock_user_client()
+                client = self.mock_user_client(db_config.name)
                 location = b'abcd'
                 encrypted_location = client.encrypt_location(location)
                 decrypted_location = la.decrypt(encrypted_location)
@@ -124,7 +145,8 @@ class TestClient(unittest.TestCase):
 
     def test_log_location(self):
         with writeable_tempfile() as pkeys_config, \
-                writeable_tempfile() as pem_file:
+                writeable_tempfile() as pem_file, \
+                writeable_tempfile() as db_config:
             dc = MagicMock()
             dc.get_location_logs_config = MagicMock(return_value = [{
                 DC.DATABASE_ENGINE: DE.SQLITE,
@@ -134,19 +156,19 @@ class TestClient(unittest.TestCase):
             mock_mapping = self.simulate_env(
                 pkeys_config,
                 pem_file,
+                db_config,
                 pe,
                 {ClientConfig.PES: (3, pem_file.name)},
             )
             with patch('builtins.open', side_effect=mock_mapping):
+                client = self.mock_user_client(db_config.name)
                 privacy_enforcer = MagicMock()
-                client = UserClient('mock_file', privacy_enforcer, 'db_config')
+                privacy_enforcer.upload = MagicMock(return_value=None)
+                client.privacy_enforcer = privacy_enforcer
                 location = b'abcd'
-                time = 123
+                time = datetime.datetime.now()
                 otp = b'otp'
-                client.encrypt_one_time_pad = MagicMock(return_value=otp)
                 client.encrypt_location = MagicMock(return_value=location)
-                crypto_client = MagicMock()
-                client.get_crypto_client = MagicMock(return_value=crypto_client)
                 client.log_entry(time, location, otp)
                 privacy_enforcer.upload.assert_called_with(
                     time, location, otp,
