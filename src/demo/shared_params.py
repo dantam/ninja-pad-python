@@ -1,117 +1,169 @@
 import os
 import json
 
+from argparse import Namespace
 from lib.configs.client_config import ClientConfig
 from demo.constants import Constants
+
+auth_to_key_files = {
+    ClientConfig.PAS: (1, Constants.PA_AUTH),
+    ClientConfig.LAS: (2, Constants.LA_AUTH),
+    ClientConfig.MAS: (3, Constants.MA_AUTH),
+    ClientConfig.PES: (4, Constants.PE_AUTH),
+}
+auth_to_key_files_str = json.dumps(auth_to_key_files)
+
+defaults = Namespace(
+    basedir='{}/{}/'.format(os.getcwd(), Constants.BASE_DIR),
+    config_dir=Constants.CONFIG_DIR,
+    db_dir='dbs',
+    db_config='db_conf.json',
+    key_dir='keys',
+    key_config='key_conf.json',
+    client_config=Constants.CLIENT_CONFIG,
+    num_users=1,
+    one_time_pad_length=256,
+    key_size=8192,
+    public_exponent=65537,
+    public_key_file_extension='pem',
+    auth_to_key_files=auth_to_key_files_str,
+    speed=2,
+    xmin=0,
+    xmax=100,
+    numx=1,
+    round=None,
+    num_days=10,
+    user_log_frequency=60,
+    patient_zero_prob=0.001,
+)
 
 def add_shared_args(parser):
     parser.add_argument(
         '--basedir',
-        default='{}/{}/'.format(os.getcwd(), Constants.BASE_DIR),
+        default=defaults.basedir,
         help='absolute path to directory',
     )
     parser.add_argument(
         '--config_dir',
-        default=Constants.CONFIG_DIR,
+        default=defaults.config_dir,
         help='relative path from basedir to config directory',
     )
     parser.add_argument(
         '--db_dir',
-        default='dbs',
+        default=defaults.db_dir,
         help='relative path from basedir to db directory',
     )
     parser.add_argument(
         '--db_config',
-        default='db_conf.json',
+        default=defaults.db_config,
         help='name of output file',
     )
     parser.add_argument(
         '--key_dir',
-        default='keys'.format(os.getcwd()),
+        default=defaults.key_dir,
         help='relative path from basedir to key directory',
     )
     parser.add_argument(
         '--key_config',
-        default='key_conf.json',
+        default=defaults.key_config,
         help='name of key file',
     )
     parser.add_argument(
         '--client_config',
-        default=Constants.CLIENT_CONFIG,
+        default=defaults.client_config,
         help='common name of client file (appended with user id)',
     )
     parser.add_argument(
         '--num_users',
-        default=1,
+        default=defaults.num_users,
         type=int,
         help='number of users',
     )
     parser.add_argument(
         '--one_time_pad_length',
-        default=256,
+        default=defaults.one_time_pad_length,
         type=int,
         help='number of bytes for one time pad',
     )
     parser.add_argument(
         '--key_size',
-        default=8192,
+        default=defaults.key_size,
         type=int,
         help='number of bits for asymetric encryption key',
     )
     parser.add_argument(
         '--public_exponent',
-        default=65537,
+        default=defaults.public_exponent,
         type=int,
         help='number of bits for asymetric encryption exponent',
     )
     parser.add_argument(
         '--public_key_file_extension',
-        default='pem',
+        default=defaults.public_key_file_extension,
         help='postfix to public key files',
     )
-
-    auth_to_key_files = {
-        ClientConfig.PAS: (1, Constants.PA_AUTH),
-        ClientConfig.LAS: (2, Constants.LA_AUTH),
-        ClientConfig.MAS: (3, Constants.MA_AUTH),
-        ClientConfig.PES: (4, Constants.PE_AUTH),
-    }
     parser.add_argument(
         '--auth_to_key_files',
-        default=json.dumps(auth_to_key_files),
+        default=defaults.auth_to_key_files,
         help='json dictionary for auth ids and keys',
+    )
+    parser.add_argument(
+        '--debug',
+        default=False,
+        action='store_true',
+        help='set log debug mode',
     )
     return parser
 
 def add_brownian_args(parser):
     parser.add_argument(
         '--speed',
-        default=2,
+        default=defaults.speed,
         type=int,
         help='pos at time t is normal with mean x0, variance is delta**2*t',
     )
     parser.add_argument(
         '--xmin',
-        default=0,
+        default=defaults.xmin,
         type=int,
         help='minimum value of x',
     )
     parser.add_argument(
         '--xmax',
-        default=100,
+        default=defaults.xmax,
         type=int,
         help='max value of x',
     )
     parser.add_argument(
         '--numx',
-        default=1,
+        default=defaults.numx,
         type=int,
         help='number of x to simulate',
     )
     parser.add_argument(
         '--round',
-        default=None,
+        default=defaults.round,
         type=int,
         help='round at the last step',
+    )
+    return parser
+
+def add_run_args(parser):
+    parser.add_argument(
+        '--num_days',
+        default=defaults.num_days,
+        help='number of days to simulate',
+    )
+    parser.add_argument(
+        '--user_log_frequency',
+        default=defaults.user_log_frequency,
+        type=int,
+        help='number of logs per hour',
+    )
+    parser.add_argument(
+        '--patient_zero_prob',
+        default=defaults.patient_zero_prob,
+        type=float,
+        help='probability user catches from without contact',
     )
     return parser

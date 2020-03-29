@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from lib.configs.client_config import ClientConfig
 from lib.crypto import (
@@ -50,11 +51,11 @@ class LocationAuthority():
             try:
                 dec = self.crypto_server.decrypt(result.encrypted_location)
                 if not dec:
-                    print('no dec')
+                    logging.info('decrypt failed siliently')
                     continue
                 my_results.append((dec, result))
             except ValueError:
-                print('location auth decrypt fail')
+                logging.debug('location auth decrypt fail')
         return my_results
 
     def process_contaminations(self, start_time, end_time):

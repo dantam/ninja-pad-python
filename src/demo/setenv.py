@@ -24,7 +24,7 @@ def get_args():
     parser = argparse.ArgumentParser(
         description="Set up config and key files",
     )
-    parser = add_shared_args(parser)
+    add_shared_args(parser)
     return parser.parse_args()
 
 def write_file(args, payload, filename):
@@ -45,7 +45,7 @@ def make_db_config_file(args):
 
 def make_client_config_files(args):
     auth_to_auth_ids = {}
-    for auth_type, id_and_file in args.auth_to_key_files.items():
+    for auth_type, id_and_file in args.auth_to_key_files_map.items():
         auth_to_auth_ids[auth_type] = [id_and_file[0]]
     keys_file = os.path.join(args.basedir, args.config_dir, args.key_config)
     payload = {
@@ -68,7 +68,7 @@ def make_client_config_files(args):
 
 def make_key_config_file(args):
     key_config = {}
-    for k, v in args.auth_to_key_files.items():
+    for k, v in args.auth_to_key_files_map.items():
         auth_id, filename = v
         filename = '{}.{}'.format(filename, args.public_key_file_extension)
         fullpath = os.path.join(args.basedir, args.key_dir, filename)
@@ -76,13 +76,13 @@ def make_key_config_file(args):
     write_file(args, key_config, args.key_config)
 
 def make_config_files(args):
-    args.auth_to_key_files = json.loads(args.auth_to_key_files)
+    args.auth_to_key_files_map = json.loads(args.auth_to_key_files)
     make_db_config_file(args)
     make_client_config_files(args)
     make_key_config_file(args)
 
 def make_keys(args):
-    for k, v in args.auth_to_key_files.items():
+    for k, v in args.auth_to_key_files_map.items():
         auth_id, filename = v
         pub_file = '{}.{}'.format(filename, args.public_key_file_extension)
         crypto = Crypto(args.public_exponent, args.key_size)
@@ -91,10 +91,13 @@ def make_keys(args):
         fullpath = os.path.join(args.basedir, args.key_dir, filename)
         crypto.UNSAFE_private_key_to_file(fullpath)
 
-def main():
-    args = get_args()
+def setenv(args):
     make_config_files(args)
     make_keys(args)
+
+def main():
+    args = get_args()
+    setenv(args)
 
 if __name__ == '__main__':
     main()

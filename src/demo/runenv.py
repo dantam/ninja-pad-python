@@ -3,6 +3,7 @@ import datetime
 import json
 import os
 import random
+import logging
 
 from lib.configs.db_config import (
     DatastoreConfig as DC,
@@ -14,6 +15,7 @@ from demo.brownian import brownian
 from demo.shared_params import (
     add_shared_args,
     add_brownian_args,
+    add_run_args,
 )
 from lib.configs.client_config import ClientConfig
 from lib.clients.user_client import UserClient
@@ -25,31 +27,14 @@ from lib.auths.medical_auth import MedicalAuthorityClient
 from lib.auths.location_auth import (
     LocationAuthority,
 )
-
 def get_args():
     parser = argparse.ArgumentParser(
         description="Run simulation",
     )
-    parser.add_argument(
-        '--num_days',
-        default=10,
-        help='number of days to simulate',
-    )
-    parser.add_argument(
-        '--user_log_frequency',
-        default=60,
-        type=int,
-        help='number of logs per hour',
-    )
-    parser.add_argument(
-        '--patient_zero_prob',
-        default=0.001,
-        type=float,
-        help='probability user catches from without contact',
-    )
 
-    parser = add_shared_args(parser)
-    parser = add_brownian_args(parser)
+    add_shared_args(parser)
+    add_brownian_args(parser)
+    add_run_args(parser)
     return parser.parse_args()
 
 class Simulation:
@@ -57,7 +42,7 @@ class Simulation:
         self.args = args
         self.set_configs()
         self.users = {i: self.make_user(i) for i in range(args.num_users)}
-        args.auth_to_key_files = json.loads(args.auth_to_key_files)
+        self.auth_to_key_files = json.loads(args.auth_to_key_files)
         self.make_location_auth()
 
     def set_configs(self):
@@ -89,7 +74,7 @@ class Simulation:
             self.args.key_dir,
             Constants.LA_AUTH,
         )
-        auth_id = self.args.auth_to_key_files[ClientConfig.LAS][0]
+        auth_id = self.auth_to_key_files[ClientConfig.LAS][0]
         self.location_auth = LocationAuthority(
             auth_id,
             self.user_client_configs[0], # to get other location auths
@@ -155,12 +140,12 @@ class Simulation:
             start_time = today - datetime.timedelta(days=28)
             end_time = today + datetime.timedelta(days=1)
             if user.has_notification(start_time, end_time):
-                print('user {} notified on {}'.format(i, today))
+                logging.info('user {} notified on {}'.format(i, today))
 
 def simulate(args):
     sim = Simulation(args)
     log = sim.run()
-    print(log)
+    logging.info(log)
 
 def main():
     args = get_args()
