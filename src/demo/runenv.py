@@ -121,8 +121,8 @@ class Simulation:
             log_time = today + datetime.timedelta(seconds=delta_seconds * i)
             for x, y in zip(xpos[i, 1:], ypos[i, 1:]):
                 location = '{}:{}'.format(x, y)
-                u.log_entry(log_time, location.encode(), otp)
                 otp, pa_id = u.encrypt_one_time_pad()
+                u.log_entry(log_time, location.encode(), otp)
                 u.log_private_entry(log_time, otp, pa_id)
 
     def run_medical_auths(self):
@@ -130,7 +130,7 @@ class Simulation:
             if random.random() < self.args.patient_zero_prob:
                 pa_id = u.get_a_person_auth_id()
                 payload = u.get_data_for_medical_auth(pa_id)[0]
-                self.med_client.upload(payload[0], payload[2])
+                self.med_client.upload(payload.time, payload.salted_otp)
 
     def run_location_auths(self):
         pass

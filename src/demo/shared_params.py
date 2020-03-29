@@ -41,16 +41,19 @@ def add_shared_args(parser):
     parser.add_argument(
         '--one_time_pad_length',
         default=256,
+        type=int,
         help='number of bytes for one time pad',
     )
     parser.add_argument(
         '--key_size',
         default=8192,
+        type=int,
         help='number of bits for asymetric encryption key',
     )
     parser.add_argument(
         '--public_exponent',
         default=65537,
+        type=int,
         help='number of bits for asymetric encryption exponent',
     )
     parser.add_argument(
