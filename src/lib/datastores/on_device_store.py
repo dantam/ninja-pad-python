@@ -6,7 +6,7 @@ from lib.datastores.base_datastore import BaseDatastore
 
 class OnDeviceStore(BaseDatastore):
     def __init__(self, datastore_config, index=0):
-        config = datastore_config.get_on_device_store_config()[index]
+        config = datastore_config[index]
         super().__init__(config)
 
     def get_table(self):

@@ -36,11 +36,6 @@ def get_args():
         help='number of days to simulate',
     )
     parser.add_argument(
-        '--num_users',
-        default=1,
-        help='number of users',
-    )
-    parser.add_argument(
         '--user_log_frequency',
         default=60,
         type=int,
@@ -61,26 +56,31 @@ class Simulation:
     def __init__(self, args):
         self.args = args
         self.set_configs()
-        self.users = {i: self.make_user() for i in range(args.num_users)}
+        self.users = {i: self.make_user(i) for i in range(args.num_users)}
         args.auth_to_key_files = json.loads(args.auth_to_key_files)
         self.make_location_auth()
 
     def set_configs(self):
-        self.client_config = os.path.join(
-            self.args.basedir,
-            self.args.config_dir,
-            self.args.client_config
-        )
+        self.user_client_configs = {}
+        for uid in range(self.args.num_users):
+            config = os.path.join(
+                self.args.basedir,
+                self.args.config_dir,
+                self.args.client_config
+            )
+            config = '{}.{}'.format(config, uid)
+            self.user_client_configs[uid] = config
+
         self.db_config = os.path.join(
             self.args.basedir,
             self.args.config_dir,
             self.args.db_config
         )
 
-    def make_user(self):
+    def make_user(self, uid):
         db_config = DatastoreConfig(self.db_config)
         self.med_client = MedicalAuthorityClient(db_config)
-        return UserClient(self.client_config, db_config)
+        return UserClient(self.user_client_configs[uid], db_config)
 
     def make_location_auth(self):
         db_config = DatastoreConfig(self.db_config)
@@ -92,7 +92,7 @@ class Simulation:
         auth_id = self.args.auth_to_key_files[ClientConfig.LAS][0]
         self.location_auth = LocationAuthority(
             auth_id,
-            self.client_config,
+            self.user_client_configs[0], # to get other location auths
             db_config,
             private_key_file
         )

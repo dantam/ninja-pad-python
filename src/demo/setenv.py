@@ -35,13 +35,15 @@ def write_file(args, payload, filename):
 def make_db_config_file(args):
     db_config = {}
     for k, v in store_to_files.items():
+        if k == DC.ON_DEVICE_STORE:
+            continue
         db_config[k] = [{
             DC.DATABASE_ENGINE: DE.SQLITE,
             DC.DATABASE_FILE: os.path.join(args.basedir, args.db_dir, v),
         }]
     write_file(args, db_config, args.db_config)
 
-def make_client_config_file(args):
+def make_client_config_files(args):
     auth_to_auth_ids = {}
     for auth_type, id_and_file in args.auth_to_key_files.items():
         auth_to_auth_ids[auth_type] = [id_and_file[0]]
@@ -51,7 +53,18 @@ def make_client_config_file(args):
         ClientConfig.PUBLIC_KEYS_FILE: keys_file,
     }
     payload.update(auth_to_auth_ids)
-    write_file(args, payload, args.client_config)
+    for uid in range(args.num_users):
+        store = '{}.{}'.format(
+            store_to_files[DC.ON_DEVICE_STORE],
+            uid,
+        )
+        on_device_store = os.path.join(args.basedir, args.db_dir, store)
+        payload[ClientConfig.ON_DEVICE_STORE] = [{
+            DC.DATABASE_ENGINE: DE.SQLITE,
+            DC.DATABASE_FILE: on_device_store,
+        }]
+        filename = '{}.{}'.format(args.client_config, uid)
+        write_file(args, payload, filename)
 
 def make_key_config_file(args):
     key_config = {}
@@ -65,7 +78,7 @@ def make_key_config_file(args):
 def make_config_files(args):
     args.auth_to_key_files = json.loads(args.auth_to_key_files)
     make_db_config_file(args)
-    make_client_config_file(args)
+    make_client_config_files(args)
     make_key_config_file(args)
 
 def make_keys(args):

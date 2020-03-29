@@ -8,6 +8,7 @@ class ClientConfig:
     PES = 'privacy_enforcers'
     ONE_TIME_PAD_LENGTH = 'one_time_pad_length'
     PUBLIC_KEYS_FILE = 'public_keys_file'
+    ON_DEVICE_STORE = 'on_device_store'
 
     def __init__(self, config_file):
         with open(config_file) as f:
@@ -48,4 +49,7 @@ class ClientConfig:
 
     def get_public_keys_file(self):
         return self.get_value(ClientConfig.PUBLIC_KEYS_FILE)
+
+    def get_on_device_config(self):
+        return self.get_value(ClientConfig.ON_DEVICE_STORE)
 

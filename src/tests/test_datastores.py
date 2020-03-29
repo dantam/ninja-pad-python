@@ -38,6 +38,9 @@ db_config = {k: test_config for k in stores}
 class TestDatastores(unittest.TestCase):
     def basic_test(self, db_wrapper, table_name, **entry):
         log = db_wrapper(DC('mock_file'))
+        self.basic_test_specified(log, table_name, **entry)
+
+    def basic_test_specified(self, log, table_name, **entry):
         self.assertNotEqual(log, None)
         log.create()
         self.assertEqual(log.table.name, table_name)
@@ -63,7 +66,11 @@ class TestDatastores(unittest.TestCase):
             'person_auth_id': 'pa_id',
             'salted_otp': 'salted_otp',
          }
-        self.basic_test(OnDeviceStore, Table.ON_DEVICE_STORE, **entry)
+        self.basic_test_specified(
+            OnDeviceStore(test_config),
+            Table.ON_DEVICE_STORE,
+            **entry,
+        )
 
     def test_location_log(self):
         entry = {

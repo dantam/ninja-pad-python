@@ -16,10 +16,12 @@ from lib.auths.privacy_enforcer import PrivacyEnforcer
 class UserClient:
     def __init__(self, client_config, db_config):
         self.privacy_enforcer = PrivacyEnforcer(db_config)
-        self.on_device_store = OnDeviceStore(db_config)
         self.notification_log = NotificationLog(db_config)
 
         self.client_config = ClientConfig(client_config)
+        on_device_store_config = self.client_config.get_on_device_config()
+        self.on_device_store = OnDeviceStore(on_device_store_config)
+
         self.public_keys_config = APKC(
             self.client_config.get_public_keys_file()
         )

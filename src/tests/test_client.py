@@ -31,23 +31,23 @@ def setup_configs(
     public_keys_file,
     auth_type_to_auth_id_and_pem_files,
 ):
+    sqlite_config = [{
+        DC.DATABASE_ENGINE: DE.SQLITE,
+        DC.DATABASE_FILE: '',
+    }]
     client_config = {
         ClientConfig.PAS: person_auths,
         ClientConfig.LAS: location_auths,
         ClientConfig.PES: privacy_enforcers,
         ClientConfig.ONE_TIME_PAD_LENGTH: one_time_pad_length,
         ClientConfig.PUBLIC_KEYS_FILE: public_keys_file,
+        ClientConfig.ON_DEVICE_STORE: sqlite_config,
     }
-    sqlite_config = [{
-        DC.DATABASE_ENGINE: DE.SQLITE,
-        DC.DATABASE_FILE: '',
-    }]
     db_config = {
         DC.LOCATION_LOGS: sqlite_config,
         DC.CONTAMINATION_LOGS: sqlite_config,
         DC.NOTIFICATION_LOGS: sqlite_config,
         DC.PRIVACY_ENFORCER_STORE: sqlite_config,
-        DC.ON_DEVICE_STORE: sqlite_config,
     }
     public_keys_config = {}
     for auth_type, id_and_file in auth_type_to_auth_id_and_pem_files.items():

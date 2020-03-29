@@ -38,7 +38,13 @@ def add_shared_args(parser):
     parser.add_argument(
         '--client_config',
         default=Constants.CLIENT_CONFIG,
-        help='name of client file',
+        help='common name of client file (appended with user id)',
+    )
+    parser.add_argument(
+        '--num_users',
+        default=1,
+        type=int,
+        help='number of users',
     )
     parser.add_argument(
         '--one_time_pad_length',
