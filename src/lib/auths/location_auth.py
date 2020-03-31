@@ -60,21 +60,40 @@ class LocationAuthority():
 
     def process_contaminations(self, start_time, end_time):
         my_results = self.get_contaminations(start_time, end_time)
-        self.publish_to_other_location_auths(my_results)
-        self.find_and_publish_encrypted_otps(my_results)
+        num_others = self.publish_to_other_location_auths(my_results)
+        num_notifs = self.find_and_publish_encrypted_otps(my_results)
+        return {
+            'num_results_responsible': len(my_results),
+            'num_publishes_for_other_location_auths': num_others,
+            'num_notifications': num_notifs,
+        }
 
-    def publish_to_other_location_auths(self, my_results):
+    def find_and_publish_encrypted_otps(self, my_results):
+        num_notifs = 0
         for r in my_results:
             data = r[1]
             matches = self.location_log.query(
-                (data.time - datetime.timedelta(seconds=120),
-                 data.time + datetime.timedelta(seconds=120)),
-                encrypted_location=data.encrypted_location,
+                (data.time - datetime.timedelta(seconds=1),
+                 data.time + datetime.timedelta(seconds=1)),
             )
-            for m in matches:
-                self.notification_log.insert(data.time, m.encrypted_otp)
+            contacts = []
+            for result in matches:
+                try:
+                    dec = self.crypto_server.decrypt(result.encrypted_location)
+                    if not dec:
+                        logging.info('decrypt failed siliently')
+                        continue
+                    if dec == r[0]:
+                        contacts.append(result)
+                except ValueError:
+                    logging.debug('location auth decrypt fail')
+            for c in contacts:
+                self.notification_log.insert(c.time, c.encrypted_otp)
+                num_notifs += 1
+        return num_notifs
 
-    def find_and_publish_encrypted_otps(self, my_results):
+    def publish_to_other_location_auths(self, my_results):
+        num_others = 0
         for la in self.other_las.values():
             for r in my_results:
                 location = r[0]
@@ -84,3 +103,5 @@ class LocationAuthority():
                     data.time,
                     encrypted_location,
                 )
+                num_others += 1
+        return num_others

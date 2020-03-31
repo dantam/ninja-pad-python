@@ -33,8 +33,8 @@ defaults = Namespace(
     numx=1,
     round=None,
     num_days=10,
-    user_log_frequency=60,
-    patient_zero_prob=0.001,
+    num_user_log_per_hour=60,
+    num_patient_zeros=1,
 )
 
 def add_shared_args(parser):
@@ -155,15 +155,15 @@ def add_run_args(parser):
         help='number of days to simulate',
     )
     parser.add_argument(
-        '--user_log_frequency',
-        default=defaults.user_log_frequency,
+        '--num_user_log_per_hour',
+        default=defaults.num_user_log_per_hour,
         type=int,
         help='number of logs per hour',
     )
     parser.add_argument(
-        '--patient_zero_prob',
-        default=defaults.patient_zero_prob,
-        type=float,
-        help='probability user catches from without contact',
+        '--num_patient_zeros',
+        default=defaults.num_patient_zeros,
+        type=int,
+        help='number of patients zero in the system',
     )
     return parser

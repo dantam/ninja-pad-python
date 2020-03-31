@@ -14,5 +14,5 @@ class MedicalAuthorityClient():
         self.person_auth_client = PersonAuthorityClient(db_config)
 
     # skip security for demo
-    def upload(self, time, encrypted_otp):
-        self.person_auth_client.upload(time, encrypted_otp)
+    def upload(self, payload):
+        self.person_auth_client.upload(payload)

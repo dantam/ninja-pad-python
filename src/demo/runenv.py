@@ -5,6 +5,7 @@ import os
 import random
 import logging
 
+from collections import defaultdict
 from lib.configs.db_config import (
     DatastoreConfig as DC,
     DatabaseEngines as DE,
@@ -82,25 +83,70 @@ class Simulation:
             private_key_file
         )
 
+    def get_contaminated_contacts(self, xpos, ypos, new_diagnosed_patients):
+        uid_locs = {}
+        for p in new_diagnosed_patients:
+            locs = []
+            for loc in zip(xpos[p], ypos[p]):
+                locs.append(loc)
+            uid_locs[p] = locs
+
+        uninfected_locs = {}
+        for p in range(self.args.num_users):
+            if p in new_diagnosed_patients:
+                continue
+            locs = []
+            for loc in zip(xpos[p], ypos[p]):
+                locs.append(loc)
+            uninfected_locs[p] = locs
+
+        contacts = defaultdict(list)
+        for k, v in uid_locs.items():
+            for ik, iv in uninfected_locs.items():
+                for i, positions in enumerate(zip(v, iv)):
+                    if positions[0] == positions[1]:
+                        contacts[i].append((k, ik, positions[0]))
+
+        logging.debug('carriers_locations:')
+        for k, v in uid_locs.items():
+            logging.debug('user {}: {}'.format(k, v))
+        logging.debug('non_carriers_locations:')
+        for k, v in uninfected_locs.items():
+            logging.debug('user {}: {}'.format(k, v))
+
+        return contacts
+
     def run(self):
         sim_log = []
         start = datetime.datetime.now() - datetime.timedelta(days=365)
         for day in range(self.args.num_days):
+            logging.info('running simulation for day {}'.format(day))
             today = start + datetime.timedelta(days=day)
-            self.run_users(today)
-            self.run_medical_auths()
-            self.run_location_auths(today)
+            xpos, ypos = self.run_users(today)
+            new_diagnosed_patients = self.run_medical_auths(today)
+            location_auth_counters = self.run_location_auths(today)
             self.run_location_auths_again()
+            users_notified = self.users_check(today)
+            new_contacts = self.get_contaminated_contacts(
+                xpos,
+                ypos,
+                new_diagnosed_patients,
+            )
             sim_log.append({
                 'day': day,
+                'xpos': xpos,
+                'ypos': ypos,
+                'new_diagnosed_patients': new_diagnosed_patients,
+                'users_notified': users_notified,
+                'new_contacts': new_contacts,
+                **location_auth_counters,
             })
-            self.users_check(today)
         return sim_log
 
     def brownian(self):
         return brownian(
             len(self.users),
-            24 * self.args.user_log_frequency, # num steps
+            24 * self.args.num_user_log_per_hour, # num steps
             24 * 60, # total time
             self.args.speed, # speed
             0,  # min val
@@ -113,39 +159,58 @@ class Simulation:
         ypos = self.brownian()
         num_entries = len(xpos[0, 1:])
         delta_seconds = 60 * 60 * 24 / num_entries
+        count = 0
         for i, u in enumerate(self.users.values()):
-            log_time = today + datetime.timedelta(seconds=delta_seconds * i)
-            for x, y in zip(xpos[i, 1:], ypos[i, 1:]):
+            step = 0
+            for x, y in zip(xpos[i, :], ypos[i, :]):
                 location = '{}:{}'.format(x, y)
                 otp, pa_id = u.encrypt_one_time_pad()
+                delta_time = datetime.timedelta(seconds=delta_seconds * step)
+                step += 1
+                log_time = today + delta_time
                 u.log_entry(log_time, location.encode(), otp)
                 u.log_private_entry(log_time, otp, pa_id)
+                count += 1
+        return (xpos, ypos)
 
-    def run_medical_auths(self):
+    def run_medical_auths(self, today):
+        new_patients = []
         for i, u in enumerate(self.users.values()):
-            if random.random() < self.args.patient_zero_prob:
+            if i < self.args.num_patient_zeros:
                 pa_id = u.get_a_person_auth_id()
-                payload = u.get_data_for_medical_auth(pa_id)[0]
-                self.med_client.upload(payload.time, payload.salted_otp)
+                payload = u.get_data_for_medical_auth(pa_id, today)
+                self.med_client.upload(payload)
+                new_patients.append(i)
+        return new_patients
 
     def run_location_auths(self, today):
         endtime = today + datetime.timedelta(days=1)
-        self.location_auth.process_contaminations(today, endtime)
+        return self.location_auth.process_contaminations(today, endtime)
 
     def run_location_auths_again(self):
         pass
 
     def users_check(self, today):
+        notifications = []
         for i, user in enumerate(self.users.values()):
             start_time = today - datetime.timedelta(days=28)
             end_time = today + datetime.timedelta(days=1)
             if user.has_notification(start_time, end_time):
-                logging.info('user {} notified on {}'.format(i, today))
+                notifications.append(i)
+        return notifications
 
 def simulate(args):
     sim = Simulation(args)
+    logging.info('running simulation')
     log = sim.run()
-    logging.info(log)
+    debug_print_log(log)
+    return log
+
+def debug_print_log(log):
+    filtered = ['xpos', 'ypos']
+    for d in log:
+        payload = {k: d[k] for k in d.keys() if k not in filtered}
+        logging.debug(payload)
 
 def main():
     args = get_args()

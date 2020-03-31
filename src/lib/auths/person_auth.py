@@ -12,12 +12,20 @@ class PersonAuthorityClient():
         self.contamination_log = ContaminationLog(config)
         self.location_log = LocationLog(config)
 
-    def upload(self, time, encrypted_otp):
-        locations = self.location_log.query(
-            (time - datetime.timedelta(seconds=120),
-             time + datetime.timedelta(seconds=120)),
-            encrypted_otp=encrypted_otp,
-        )
-        for location in locations:
-            self.contamination_log.insert(time, location.encrypted_location)
+    def upload(self, payload):
+        contaminations = []
+        for entry in payload:
+            time = entry.time
+            encrypted_otp = entry.salted_otp
+            locations = self.location_log.query(
+                (time - datetime.timedelta(seconds=120),
+                 time + datetime.timedelta(seconds=120)),
+                encrypted_otp=encrypted_otp,
+            )
+            contaminations += locations
+        for contamination in contaminations:
+            self.contamination_log.insert(
+                contamination.time,
+                contamination.encrypted_location
+            )
 

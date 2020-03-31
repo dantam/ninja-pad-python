@@ -46,15 +46,11 @@ class OnDeviceStore(BaseDatastore):
     def delete(self, times=(), salted_otp=None, person_auth_id=None):
         return super().delete(self.get_where(times, salted_otp, person_auth_id))
 
-    def get_latest(self, personal_auth_id):
-        query = db.select(
-            [self.table]
-        ).where(
-            self.table.columns.person_auth_id == personal_auth_id
-        ).order_by(
-            self.table.columns.time.desc()
-        ).limit(1)
-        with self.engine.connect() as connection:
-            return connection.execute(query).fetchall()
+    def get_since(self, personal_auth_id, start_time):
+        clauses = [
+            self.table.columns.person_auth_id == personal_auth_id,
+            self.table.columns.time >= start_time
+        ]
+        return super().query(db.and_(*clauses))
 
 
