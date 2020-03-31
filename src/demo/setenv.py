@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import logging
 
 from lib.configs.db_config import (
     DatastoreConfig as DC,
@@ -97,7 +98,9 @@ def make_keys(args):
         crypto.UNSAFE_private_key_to_file(fullpath)
 
 def setenv(args):
+    logging.info('setting up config files')
     make_config_files(args)
+    logging.info('setting up public/private keys')
     make_keys(args)
 
 def main():
