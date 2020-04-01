@@ -16,11 +16,10 @@ class PersonAuthorityClient():
         contaminations = []
         for entry in payload:
             time = entry.time
-            encrypted_otp = entry.salted_otp
             locations = self.location_log.query(
                 (time - datetime.timedelta(seconds=120),
                  time + datetime.timedelta(seconds=120)),
-                encrypted_otp=encrypted_otp,
+                encrypted_otp=entry.encrypted_otp,
             )
             contaminations += locations
         for contamination in contaminations:

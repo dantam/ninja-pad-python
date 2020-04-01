@@ -17,34 +17,35 @@ class OnDeviceStore(BaseDatastore):
             db.Column('salted_otp', db.VARCHAR(256)),
         )
 
-    def insert(self, time, salted_otp, person_auth_id):
+    def insert(self, time, encrypted_otp, person_auth_id):
         query = db.insert(self.table).values(
             time=time,
-            salted_otp=salted_otp,
+            encrypted_otp=encrypted_otp,
             person_auth_id=person_auth_id
         )
         with self.engine.connect() as connection:
             return connection.execute(query)
 
-    def get_where(self, times, salted_otp, person_auth_id):
+    def get_where(self, times, **kwargs):
         column_value_map = {}
-        col = self.table.columns.salted_otp
-        if salted_otp is not None:
-            column_value_map[col] = salted_otp
-        col = self.table.columns.person_auth_id
-        if person_auth_id is not None:
-            column_value_map[col] = person_auth_id
+        cols = self.table.columns
+        encrypted_otp = kwargs.get('encrypted_otp')
+        person_auth_id = kwargs.get('person_auth_id')
+        if encrypted_otp:
+            column_value_map[cols.encrypted_otp] = encrypted_otp
+        if person_auth_id:
+            column_value_map[cols.person_auth_id] = person_auth_id
 
         return super().get_where(
             times,
             column_value_map,
         )
 
-    def query(self, times=(), salted_otp=None, person_auth_id=None):
-        return super().query(self.get_where(times, salted_otp, person_auth_id))
+    def query(self, times=(), **kwargs):
+        return super().query(self.get_where(times, **kwargs))
 
-    def delete(self, times=(), salted_otp=None, person_auth_id=None):
-        return super().delete(self.get_where(times, salted_otp, person_auth_id))
+    def delete(self, times=(), **kwargs):
+        return super().delete(self.get_where(times, **kwargs))
 
     def get_since(self, personal_auth_id, start_time):
         clauses = [

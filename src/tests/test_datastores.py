@@ -64,7 +64,7 @@ class TestDatastores(unittest.TestCase):
     def test_on_device_store(self):
         entry = {
             'person_auth_id': 'pa_id',
-            'salted_otp': 'salted_otp',
+            'encrypted_otp': 'encrypted_otp',
          }
         self.basic_test_specified(
             OnDeviceStore(test_config),

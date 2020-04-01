@@ -57,10 +57,10 @@ class UserClient:
             encrypted_otp,
         )
 
-    def log_private_entry(self, time, salted_otp, person_auth_id):
+    def log_private_entry(self, time, encrypted_otp, person_auth_id):
         return self.on_device_store.insert(
             time,
-            salted_otp,
+            encrypted_otp,
             person_auth_id,
         )
 
@@ -79,7 +79,7 @@ class UserClient:
             matches = self.on_device_store.query(
                 (notice.time - datetime.timedelta(seconds=120),
                  notice.time + datetime.timedelta(seconds=120)),
-                salted_otp=notice.encrypted_otp
+                encrypted_otp=notice.encrypted_otp
             )
             if len(matches) > 0:
                 return True
