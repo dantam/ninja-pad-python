@@ -15,11 +15,11 @@ class Crypto:
         label=None,
     )
 
-    def __init__(self, public_exponent=65537, key_size=2048):
+    def __init__(self, **kwargs):
         self.private_key = rsa.generate_private_key(
-            public_exponent=public_exponent,
-            key_size=key_size,
-            backend=default_backend()
+            backend=default_backend(),
+            public_exponent=kwargs['public_exponent'],
+            key_size=kwargs['key_size'],
         )
         self.public_key = self.private_key.public_key()
 

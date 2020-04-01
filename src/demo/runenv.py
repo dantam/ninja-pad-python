@@ -66,7 +66,12 @@ class Simulation:
     def make_user(self, uid):
         db_config = DatastoreConfig(self.db_config)
         self.med_client = MedicalAuthorityClient(db_config)
-        return UserClient(self.user_client_configs[uid], db_config)
+        return UserClient(
+            self.user_client_configs[uid],
+            db_config,
+            public_exponent=self.args.public_exponent,
+            key_size=self.args.key_size,
+        )
 
     def make_location_auth(self):
         db_config = DatastoreConfig(self.db_config)

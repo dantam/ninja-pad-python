@@ -86,7 +86,10 @@ def make_keys(args):
     for k, v in args.auth_to_key_files_map.items():
         auth_id, filename = v
         pub_file = '{}.{}'.format(filename, args.public_key_file_extension)
-        crypto = Crypto(args.public_exponent, args.key_size)
+        crypto = Crypto(
+            public_exponent=args.public_exponent,
+            key_size=args.key_size,
+        )
         fullpath = os.path.join(args.basedir, args.key_dir, pub_file)
         os.makedirs(os.path.dirname(fullpath), exist_ok=True)
         crypto.public_key_to_file(fullpath)

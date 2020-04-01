@@ -59,9 +59,14 @@ def setup_configs(
 def writeable_tempfile():
     return open(NamedTemporaryFile().name, 'w')
 
+crypto_config = {
+    'public_exponent': 65537,
+    'key_size': 2048,
+}
+
 class TestClient(unittest.TestCase):
     def mock_user_client(self, db_config):
-        return UserClient('mock_file', DC(db_config))
+        return UserClient('mock_file', DC(db_config), **crypto_config)
 
     def simulate_env(self,
         pkeys_config,
@@ -107,7 +112,7 @@ class TestClient(unittest.TestCase):
         with writeable_tempfile() as pkeys_config, \
                 writeable_tempfile() as pem_file, \
                 writeable_tempfile() as db_config:
-            pa = PA()
+            pa = PA(**crypto_config)
             mock_mapping = self.simulate_env(
                 pkeys_config,
                 pem_file,
@@ -125,7 +130,7 @@ class TestClient(unittest.TestCase):
         with writeable_tempfile() as pkeys_config, \
                 writeable_tempfile() as pem_file, \
                 writeable_tempfile() as db_config:
-            la = LAC()
+            la = LAC(**crypto_config)
             mock_mapping = self.simulate_env(
                 pkeys_config,
                 pem_file,
@@ -152,7 +157,7 @@ class TestClient(unittest.TestCase):
                 DC.DATABASE_ENGINE: DE.SQLITE,
                 DC.DATABASE_FILE: '',
             }])
-            pe = PE(dc)
+            pe = PE(dc, **crypto_config)
             mock_mapping = self.simulate_env(
                 pkeys_config,
                 pem_file,

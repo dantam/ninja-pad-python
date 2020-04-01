@@ -14,8 +14,11 @@ from lib.datastores.on_device_store import OnDeviceStore
 from lib.auths.privacy_enforcer import PrivacyEnforcer
 
 class UserClient:
-    def __init__(self, client_config, db_config):
-        self.privacy_enforcer = PrivacyEnforcer(db_config)
+    def __init__(self, client_config, db_config, **kwargs):
+        self.privacy_enforcer = PrivacyEnforcer(
+            db_config,
+            **kwargs,
+        )
         self.notification_log = NotificationLog(db_config)
 
         self.client_config = ClientConfig(client_config)

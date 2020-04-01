@@ -4,9 +4,9 @@ from lib.crypto import Crypto
 from lib.datastores.location_log import LocationLog
 
 class PrivacyEnforcer(Crypto):
-    def __init__(self, config):
+    def __init__(self, config, **kwargs):
         self.location_log = LocationLog(config)
-        super().__init__()
+        super().__init__(**kwargs)
 
     def upload(self, time, encrypted_location, encrypted_otp):
         self.location_log.insert(time, encrypted_location, encrypted_otp)
