@@ -13,6 +13,7 @@ auth_to_key_files = {
 }
 auth_to_key_files_str = json.dumps(auth_to_key_files)
 
+otp_len = 256
 defaults = Namespace(
     basedir=os.path.join(os.getcwd(), Constants.BASE_DIR),
     config_dir=Constants.CONFIG_DIR,
@@ -22,8 +23,8 @@ defaults = Namespace(
     key_config='key_conf.json',
     client_config=Constants.CLIENT_CONFIG,
     num_users=1,
-    one_time_pad_length=256,
-    key_size=8192,
+    one_time_pad_length=otp_len,
+    key_size=otp_len*8*4,
     public_exponent=65537,
     public_key_file_extension='pem',
     auth_to_key_files=auth_to_key_files_str,
@@ -35,6 +36,7 @@ defaults = Namespace(
     num_days=10,
     num_user_log_per_hour=60,
     num_patient_zeros=1,
+    debug=False,
 )
 
 def add_shared_args(parser):
@@ -109,7 +111,7 @@ def add_shared_args(parser):
     )
     parser.add_argument(
         '--debug',
-        default=False,
+        default=defaults.debug,
         action='store_true',
         help='set log debug mode',
     )

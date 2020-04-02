@@ -4,6 +4,7 @@ backcall==0.1.0
 bleach==3.1.4
 cffi==1.14.0
 cryptography==2.8
+cycler==0.10.0
 decorator==4.4.2
 defusedxml==0.6.0
 entrypoints==0.3
@@ -19,12 +20,15 @@ jupyter==1.0.0
 jupyter-client==6.1.2
 jupyter-console==6.1.0
 jupyter-core==4.6.3
+kiwisolver==1.1.0
 MarkupSafe==1.1.1
+matplotlib==3.2.1
 mistune==0.8.4
 nbconvert==5.6.1
 nbformat==5.0.4
 notebook==6.0.3
 numpy==1.18.2
+pandas==1.0.3
 pandocfilters==1.4.2
 parso==0.6.2
 pexpect==4.8.0
@@ -34,8 +38,10 @@ prompt-toolkit==3.0.3
 ptyprocess==0.6.0
 pycparser==2.20
 Pygments==2.6.1
+pyparsing==2.4.6
 pyrsistent==0.16.0
 python-dateutil==2.8.1
+pytz==2019.3
 pyzmq==19.0.0
 qtconsole==4.7.2
 QtPy==1.9.0
