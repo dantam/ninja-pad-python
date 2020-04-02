@@ -13,7 +13,7 @@ class NotificationLog(BaseDatastore):
         return db.Table(
             DatastoreTableNames.NOTIFICATION_LOG, self.metadata,
             db.Column('time', db.DATETIME),
-            db.Column('encrypted_otp', db.VARCHAR(256)),
+            db.Column('encrypted_otp', db.TEXT),
         )
 
     def insert(self, time, encrypted_otp):

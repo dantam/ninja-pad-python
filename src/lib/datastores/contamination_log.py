@@ -13,7 +13,7 @@ class ContaminationLog(BaseDatastore):
         return db.Table(
             DatastoreTableNames.CONTAMINATION_LOG, self.metadata,
             db.Column('time', db.DATETIME),
-            db.Column('encrypted_location', db.VARCHAR(256)),
+            db.Column('encrypted_location', db.TEXT),
         )
     def insert(self, time, encrypted_location):
         query = db.insert(self.table).values(

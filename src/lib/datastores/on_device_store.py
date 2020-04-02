@@ -14,7 +14,7 @@ class OnDeviceStore(BaseDatastore):
             DatastoreTableNames.ON_DEVICE_STORE, self.metadata,
             db.Column('time', db.DATETIME),
             db.Column('person_auth_id', db.INTEGER),
-            db.Column('salted_otp', db.VARCHAR(256)),
+            db.Column('encrypted_otp', db.TEXT),
         )
 
     def insert(self, time, encrypted_otp, person_auth_id):

@@ -13,7 +13,7 @@ class LocationLog(BaseLocationLog):
         return db.Table(
             DatastoreTableNames.LOCATION_LOG, self.metadata,
             db.Column('time', db.DATETIME),
-            db.Column('encrypted_location', db.VARCHAR(256)),
-            db.Column('encrypted_otp', db.VARCHAR(256)),
+            db.Column('encrypted_location', db.TEXT),
+            db.Column('encrypted_otp', db.TEXT),
         )
 
