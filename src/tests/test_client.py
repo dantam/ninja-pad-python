@@ -103,9 +103,9 @@ class TestClient(unittest.TestCase):
                 return m3()
         return mock_mapping
 
-    fake_otp='ABCD'
+    fake_otp=b'ABCD'
     @patch(
-        "secrets.token_hex",
+        "secrets.token_bytes",
         return_value=fake_otp,
     )
     def test_encrypt_one_time_pad(self, mock):
@@ -124,7 +124,7 @@ class TestClient(unittest.TestCase):
                 client = self.mock_user_client(db_config.name)
                 encrypted_otp, pa_id = client.encrypt_one_time_pad()
                 otp = pa.decrypt(encrypted_otp)
-            self.assertEqual(otp, TestClient.fake_otp.encode())
+            self.assertEqual(otp, TestClient.fake_otp)
 
     def test_encrypt_location(self):
         with writeable_tempfile() as pkeys_config, \
