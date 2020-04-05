@@ -30,9 +30,9 @@ defaults = Namespace(
     auth_to_key_files=auth_to_key_files_str,
     speed=2,
     xmin=0,
-    xmax=100,
+    xmax=1000,
     numx=1,
-    round=None,
+    round=0,
     num_days=10,
     num_user_log_per_hour=60,
     num_patient_zeros=1,
@@ -154,6 +154,7 @@ def add_run_args(parser):
     parser.add_argument(
         '--num_days',
         default=defaults.num_days,
+        type=int,
         help='number of days to simulate',
     )
     parser.add_argument(

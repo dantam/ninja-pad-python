@@ -153,10 +153,10 @@ class Simulation:
             len(self.users),
             24 * self.args.num_user_log_per_hour, # num steps
             24 * 60, # total time
-            self.args.speed, # speed
-            0,  # min val
-            1000, # max val
-            0 # round to int
+            self.args.speed,
+            self.args.xmin,
+            self.args.xmax,
+            self.args.round,
         )
 
     def run_users(self, today):

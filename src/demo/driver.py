@@ -55,7 +55,7 @@ def drive(args):
         logging.debug('env ready')
     if 'r' in steps:
         logging.debug('simulate now')
-        simulate(args)
+        return simulate(args)
 
 def main():
     args = get_args()
