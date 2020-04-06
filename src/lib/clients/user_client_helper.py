@@ -3,7 +3,7 @@ from lib.configs.db_config import DatastoreConfig
 from lib.clients.user_client import UserClient
 
 class UserClientHelper:
-    def make_users(args):
+    def get_configs(args):
         db_config = os.path.join(
             args.basedir,
             args.config_dir,
@@ -11,6 +11,10 @@ class UserClientHelper:
         )
         user_configs = UserClientHelper.make_user_configs(args)
         db_config = DatastoreConfig(db_config)
+        return db_config, user_configs
+
+    def make_users(args):
+        db_config, user_configs = UserClientHelper.get_configs(args)
         return {i: UserClientHelper.make_user(i, args, db_config, user_configs)
             for i in range(args.num_users)
         }

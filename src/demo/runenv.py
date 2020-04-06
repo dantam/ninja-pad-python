@@ -176,7 +176,7 @@ class Simulation:
         endtime = today + datetime.timedelta(days=1)
         counter = Counter()
         for auth in self.location_auths.values():
-            counter += auth.process_contaminations(today, endtime)
+            counter.update(auth.process_contaminations(today, endtime))
         return counter
 
     def run_location_auths_again(self):
