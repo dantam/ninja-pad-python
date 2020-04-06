@@ -84,8 +84,9 @@ class TestDemo(unittest.TestCase):
 
     def test_random_runs(self):
         test_counter = defaultdict(int)
-        for i in range(3):
-            runlog = self.run_simple(xmax=3, num_days=5)[0]
+        runlogs = self.run_simple(xmax=10, num_days=15)
+        for day in range(len(runlogs)):
+            runlog = runlogs[day]
             num_users_notified = len(runlog['users_notified'])
             self.assertTrue(num_users_notified == 1 or num_users_notified == 2)
             if num_users_notified == 1:
@@ -108,8 +109,10 @@ class TestDemo(unittest.TestCase):
                         self.assertNotEqual(b[0], b[1])
                 test_counter[2] += 1
 
+            if test_counter[1] > 0 and test_counter[2] > 0:
+                break
+
         self.assertGreater(test_counter[1], 0)
-        # below fails with 1.21e-6 chance: (1-1/3**2)**(25*5)*3
         self.assertGreater(test_counter[2], 0)
 
 if __name__ == '__main__':
