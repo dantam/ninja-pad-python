@@ -1,23 +1,24 @@
 import json
 
-from lib.crypto import Crypto
+from lib.crypto import Crypto, CryptoServer
 from lib.datastores.location_log import LocationLog
 
 class PrivacyEnforcer(Crypto):
-    def __init__(self, config, **kwargs):
+    pass
+
+class PrivacyEnforcerServer():
+    def __init__(self, config):
         self.location_log = LocationLog(config)
-        super().__init__(**kwargs)
 
     def upload(self, time, encrypted_location, encrypted_otp):
         self.location_log.insert(time, encrypted_location, encrypted_otp)
 
 class PrivacyEnforcerClient():
-    def __init__(self, privacy_enforcer):
-        self.privacy_enforcer = privacy_enforcer
+    def __init__(self, privacy_enforcer_server):
+        self.server = privacy_enforcer_server
 
-    # skip security for demo
     def upload(self, time, encrypted_location, encrypted_otp):
-        return self.privacy_enforcer.upload(
+        return self.server.upload(
             time,
             encrypted_location,
             encrypted_otp,

@@ -20,9 +20,8 @@ from lib.clients.user_client import UserClient, round_time
 from lib.crypto import CryptoClient
 from lib.auths.person_auth import PersonAuthority as PA
 from lib.auths.location_auth import LocationAuthorityCrypto as LAC
-from lib.auths.privacy_enforcer import (
-    PrivacyEnforcer as PE,
-)
+from lib.auths.privacy_enforcer import PrivacyEnforcerServer
+
 def setup_configs(
     person_auths,
     location_auths,
@@ -84,7 +83,8 @@ class TestClient(unittest.TestCase):
             auth_type_to_auth_id_and_pem_files,
         )
         auth_pem = pem_file.name
-        auth.public_key_to_file(auth_pem)
+        if hasattr(auth, 'public_key_to_file'):
+            auth.public_key_to_file(auth_pem)
         pem_file_stream = open(auth_pem, 'rb')
 
         mock_client_config = 'mock_file'
@@ -157,25 +157,25 @@ class TestClient(unittest.TestCase):
                 DC.DATABASE_ENGINE: DE.SQLITE,
                 DC.DATABASE_FILE: '',
             }])
-            pe = PE(dc, **crypto_config)
+            pe_server = PrivacyEnforcerServer(dc)
             mock_mapping = self.simulate_env(
                 pkeys_config,
                 pem_file,
                 db_config,
-                pe,
+                pe_server,
                 {ClientConfig.PES: (3, pem_file.name)},
             )
             with patch('builtins.open', side_effect=mock_mapping):
                 client = self.mock_user_client(db_config.name)
-                privacy_enforcer = MagicMock()
-                privacy_enforcer.upload = MagicMock(return_value=None)
-                client.privacy_enforcer = privacy_enforcer
+                server = MagicMock()
+                server.upload = MagicMock(return_value=None)
+                client.privacy_enforcer_server = server
                 location = b'abcd'
                 time = datetime.datetime.now()
                 otp = b'otp'
                 client.encrypt_location = MagicMock(return_value=location)
                 client.log_entry(time, location, otp)
-                privacy_enforcer.upload.assert_called_with(
+                server.upload.assert_called_with(
                     time, location, otp,
                 )
 

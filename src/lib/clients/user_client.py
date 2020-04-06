@@ -8,10 +8,10 @@ from lib.configs.authority_public_keys_config import (
 )
 from lib.auths.privacy_enforcer import (
     PrivacyEnforcerClient,
+    PrivacyEnforcerServer,
 )
 from lib.datastores.notification_log import NotificationLog
 from lib.datastores.on_device_store import OnDeviceStore
-from lib.auths.privacy_enforcer import PrivacyEnforcer
 
 def round_time(time, rounding_minutes=15):
     time += datetime.timedelta(
@@ -26,10 +26,6 @@ def round_time(time, rounding_minutes=15):
 
 class UserClient:
     def __init__(self, client_config, db_config, **kwargs):
-        self.privacy_enforcer = PrivacyEnforcerClient(
-            db_config,
-            **kwargs,
-        )
         self.notification_log = NotificationLog(db_config)
 
         self.client_config = ClientConfig(client_config)
@@ -39,6 +35,7 @@ class UserClient:
         self.public_keys_config = APKC(
             self.client_config.get_public_keys_file()
         )
+        self.privacy_enforcer_server = PrivacyEnforcerServer(db_config)
         self.crypto_clients = defaultdict(defaultdict)
 
     def get_crypto_client(self, auth_type, auth_id):
@@ -64,7 +61,7 @@ class UserClient:
         return crypto_client.encrypt(location)
 
     def log_entry(self, time, location, encrypted_otp):
-        pe_client = PrivacyEnforcerClient(self.privacy_enforcer)
+        pe_client = PrivacyEnforcerClient(self.privacy_enforcer_server)
         return pe_client.upload(
             time,
             self.encrypt_location(location),
