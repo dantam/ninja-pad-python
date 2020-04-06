@@ -64,9 +64,9 @@ class TestDemo(unittest.TestCase):
         self.assertEqual(contacts.keys(), expected_contacts.keys())
         self.assertEqual(contacts[6], expected_contacts[6])
         self.assertEqual(runlog['new_diagnosed_patients'], [0])
-        self.assertEqual(runlog['num_results_responsible'],  25)
+        self.assertEqual(runlog['num_results_responsible'],  24)
         self.assertEqual(runlog['num_publishes_for_other_location_auths'], 0)
-        self.assertEqual(runlog['num_notifications'], 26)
+        self.assertEqual(runlog['num_notifications'], 25)
 
     @patch(
         "demo.runenv.brownian",
@@ -76,9 +76,9 @@ class TestDemo(unittest.TestCase):
         runlog = self.run_simple()[0]
         self.assertEqual(runlog['users_notified'], [0])
         self.assertEqual(runlog['new_diagnosed_patients'], [0])
-        self.assertEqual(runlog['num_results_responsible'],  25)
+        self.assertEqual(runlog['num_results_responsible'],  24)
         self.assertEqual(runlog['num_publishes_for_other_location_auths'], 0)
-        self.assertEqual(runlog['num_notifications'], 25)
+        self.assertEqual(runlog['num_notifications'], 24)
         new_contacts = runlog['new_contacts']
         self.assertEqual(len(new_contacts), 0)
 

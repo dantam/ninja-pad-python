@@ -16,7 +16,7 @@ from lib.configs.db_config import (
 )
 from lib.datastores.location_log import LocationLog
 from lib.configs.client_config import ClientConfig
-from lib.clients.user_client import UserClient
+from lib.clients.user_client import UserClient, round_time
 from lib.crypto import CryptoClient
 from lib.auths.person_auth import PersonAuthority as PA
 from lib.auths.location_auth import LocationAuthorityCrypto as LAC
@@ -178,6 +178,20 @@ class TestClient(unittest.TestCase):
                 privacy_enforcer.upload.assert_called_with(
                     time, location, otp,
                 )
+
+    def help_test_time(self, test_time, round_seconds, expected_time):
+        time = datetime.datetime.strptime(test_time, '%H:%M:%S')
+        rt = round_time(time, round_seconds)
+        expected_time = datetime.datetime.strptime(expected_time, '%H:%M:%S')
+        self.assertEqual(rt, expected_time)
+
+    def test_round_time(self):
+        self.help_test_time('00:03:07', 1, '00:03:00')
+        self.help_test_time('11:03:31', 1, '11:04:00')
+        self.help_test_time('00:15:31', 15, '00:15:00')
+        self.help_test_time('22:07:29', 15, '22:00:00')
+        self.help_test_time('00:29:59', 60, '00:00:00')
+        self.help_test_time('05:30:01', 60, '06:00:00')
 
 if __name__ == '__main__':
     unittest.main()

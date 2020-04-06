@@ -29,7 +29,6 @@ class LocationAuthority():
         self.setup_other_location_auths(client_config)
 
     def setup_other_location_auths(self, client_config):
-        client_config = ClientConfig(client_config)
         self.public_keys_config = APKC(
             client_config.get_public_keys_file()
         )

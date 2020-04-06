@@ -13,9 +13,20 @@ from lib.datastores.notification_log import NotificationLog
 from lib.datastores.on_device_store import OnDeviceStore
 from lib.auths.privacy_enforcer import PrivacyEnforcer
 
+def round_time(time, rounding_minutes=15):
+    time += datetime.timedelta(
+        seconds=rounding_minutes * 60 / 2,
+    )
+    time -= datetime.timedelta(
+        minutes=time.minute % rounding_minutes,
+        seconds=time.second,
+        microseconds=time.microsecond
+    )
+    return time
+
 class UserClient:
     def __init__(self, client_config, db_config, **kwargs):
-        self.privacy_enforcer = PrivacyEnforcer(
+        self.privacy_enforcer = PrivacyEnforcerClient(
             db_config,
             **kwargs,
         )
@@ -85,3 +96,10 @@ class UserClient:
             if len(matches) > 0:
                 return True
         return False
+
+    def process_one_position(self, time, x, y):
+        location = '{}:{}'.format(x, y)
+        log_time = round_time(time)
+        otp, pa_id = self.encrypt_one_time_pad()
+        self.log_entry(log_time, location.encode(), otp)
+        self.log_private_entry(log_time, otp, pa_id)
