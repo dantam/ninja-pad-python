@@ -8,10 +8,10 @@ from unittest.mock import (
 )
 from lib.configs.client_config import ClientConfig
 
-PAS = [1, 2, 3]
-LAS = [4, 5]
-MAS = [6]
-PES = [7, 8, 9, 10, 11, 12]
+PAS = [[1], [2], [3]]
+LAS = [[4], [5]]
+MAS = [[6]]
+PES = [[7], [8], [9], [10], [11], [12]]
 config = {
     ClientConfig.PAS: PAS,
     ClientConfig.LAS: LAS,

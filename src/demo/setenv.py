@@ -71,10 +71,11 @@ def make_client_config_files(args):
 def make_key_config_file(args):
     key_config = {}
     for k, v in args.auth_to_key_files_map.items():
-        auth_id, filename = v
-        filename = '{}.{}'.format(filename, args.public_key_file_extension)
-        fullpath = os.path.join(args.basedir, args.key_dir, filename)
-        key_config[k] = {auth_id: fullpath}
+        for val in v:
+            auth_id, filename = val
+            filename = '{}.{}'.format(filename, args.public_key_file_extension)
+            fullpath = os.path.join(args.basedir, args.key_dir, filename)
+            key_config[k] = {auth_id: fullpath}
     write_file(args, key_config, args.key_config)
 
 def make_config_files(args):
@@ -85,17 +86,18 @@ def make_config_files(args):
 
 def make_keys(args):
     for k, v in args.auth_to_key_files_map.items():
-        auth_id, filename = v
-        pub_file = '{}.{}'.format(filename, args.public_key_file_extension)
-        crypto = Crypto(
-            public_exponent=args.public_exponent,
-            key_size=args.key_size,
-        )
-        fullpath = os.path.join(args.basedir, args.key_dir, pub_file)
-        os.makedirs(os.path.dirname(fullpath), exist_ok=True)
-        crypto.public_key_to_file(fullpath)
-        fullpath = os.path.join(args.basedir, args.key_dir, filename)
-        crypto.UNSAFE_private_key_to_file(fullpath)
+        for val in v:
+            auth_id, filename = val
+            pub_file = '{}.{}'.format(filename, args.public_key_file_extension)
+            crypto = Crypto(
+                public_exponent=args.public_exponent,
+                key_size=args.key_size,
+            )
+            fullpath = os.path.join(args.basedir, args.key_dir, pub_file)
+            os.makedirs(os.path.dirname(fullpath), exist_ok=True)
+            crypto.public_key_to_file(fullpath)
+            fullpath = os.path.join(args.basedir, args.key_dir, filename)
+            crypto.UNSAFE_private_key_to_file(fullpath)
 
 def setenv(args):
     logging.info('setting up config files')

@@ -5,7 +5,7 @@ import os
 import random
 import logging
 
-from collections import defaultdict
+from collections import defaultdict, Counter
 from lib.configs.db_config import (
     DatastoreConfig as DC,
     DatabaseEngines as DE,
@@ -44,7 +44,7 @@ class Simulation:
         self.set_configs()
         self.make_users()
         self.auth_to_key_files = json.loads(args.auth_to_key_files)
-        self.make_location_auth()
+        self.make_location_auths()
         self.make_medical_auth()
 
     def set_configs(self):
@@ -61,20 +61,22 @@ class Simulation:
     def make_users(self):
         self.users = UserClientHelper.make_users(self.args)
 
-    def make_location_auth(self):
+    def make_location_auths(self):
         db_config = DatastoreConfig(self.db_config)
-        private_key_file = os.path.join(
-            self.args.basedir,
-            self.args.key_dir,
-            Constants.LA_AUTH,
-        )
-        auth_id = self.auth_to_key_files[ClientConfig.LAS][0]
-        self.location_auth = LocationAuthority(
-            auth_id,
-            self.users[0].client_config, # to get other location auths
-            db_config,
-            private_key_file
-        )
+        self.location_auths = defaultdict()
+        for auth_config in self.auth_to_key_files[ClientConfig.LAS]:
+            private_key_file = os.path.join(
+                self.args.basedir,
+                self.args.key_dir,
+                auth_config[1],
+            )
+            auth_id = auth_config[0]
+            self.location_auths[auth_id] = LocationAuthority(
+               auth_id,
+               self.users[0].client_config, # to get other location auths
+               db_config,
+               private_key_file
+            )
 
     def get_contaminated_contacts(self, xpos, ypos, new_diagnosed_patients):
         uid_locs = {}
@@ -172,7 +174,10 @@ class Simulation:
 
     def run_location_auths(self, today):
         endtime = today + datetime.timedelta(days=1)
-        return self.location_auth.process_contaminations(today, endtime)
+        counter = Counter()
+        for auth in self.location_auths.values():
+            counter += auth.process_contaminations(today, endtime)
+        return counter
 
     def run_location_auths_again(self):
         pass

@@ -24,25 +24,25 @@ class ClientConfig:
         return self.get_value(ClientConfig.PAS)
 
     def get_person_auth(self):
-        return self.get_random_value(ClientConfig.PAS)
+        return self.get_random_value(ClientConfig.PAS)[0]
 
     def get_location_auths(self):
         return self.get_value(ClientConfig.LAS)
 
     def get_location_auth(self):
-        return self.get_random_value(ClientConfig.LAS)
+        return self.get_random_value(ClientConfig.LAS)[0]
 
     def get_medical_auths(self):
         return self.get_value(ClientConfig.MAS)
 
     def get_medical_auth(self):
-        return self.get_random_value(ClientConfig.MAS)
+        return self.get_random_value(ClientConfig.MAS)[0]
 
     def get_privacy_enforcers(self):
         return self.get_value(ClientConfig.PES)
 
     def get_privacy_enforcer(self):
-        return self.get_random_value(ClientConfig.PES)
+        return self.get_random_value(ClientConfig.PES)[0]
 
     def get_one_time_pad_length(self):
         return int(self.get_value(ClientConfig.ONE_TIME_PAD_LENGTH))

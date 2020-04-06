@@ -75,9 +75,9 @@ class TestClient(unittest.TestCase):
         auth_type_to_auth_id_and_pem_files,
     ):
         client_config, public_keys_config, db_config = setup_configs(
-            [1],
-            [2],
-            [3],
+            [[1]],
+            [[2]],
+            [[3]],
             128,
             pkeys_config.name,
             auth_type_to_auth_id_and_pem_files,

@@ -9,7 +9,7 @@ class AuthorityPublicKeysConfig:
     def __init__(self, config_file):
         with open(config_file) as f:
             self.config = json.load(f)
-        self.public_keys = defaultdict(dict)
+        self.public_keys = defaultdict(defaultdict)
 
     def get_public_auth_ids(self, auth_type):
         return self.config[auth_type].keys()
