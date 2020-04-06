@@ -127,7 +127,7 @@ class Simulation:
         for day in range(self.args.num_days):
             logging.info('running simulation for day {}'.format(day))
             today = start + datetime.timedelta(days=day)
-            xpos, ypos = self.run_users(today)
+            xpos, ypos = self.simulate_users_positions(today)
             new_diagnosed_patients = self.run_medical_auths(today)
             location_auth_counters = self.run_location_auths(today)
             self.run_location_auths_again()
@@ -159,12 +159,11 @@ class Simulation:
             self.args.round,
         )
 
-    def run_users(self, today):
+    def simulate_users_positions(self, today):
         xpos = self.brownian()
         ypos = self.brownian()
         num_entries = len(xpos[0, 1:])
         delta_seconds = 60 * 60 * 24 / num_entries
-        count = 0
         for i, u in enumerate(self.users.values()):
             step = 0
             for x, y in zip(xpos[i, :], ypos[i, :]):
@@ -175,15 +174,13 @@ class Simulation:
                 log_time = today + delta_time
                 u.log_entry(log_time, location.encode(), otp)
                 u.log_private_entry(log_time, otp, pa_id)
-                count += 1
         return (xpos, ypos)
 
     def run_medical_auths(self, today):
         new_patients = []
         for i, u in enumerate(self.users.values()):
             if i < self.args.num_patient_zeros:
-                pa_id = u.get_a_person_auth_id()
-                payload = u.get_data_for_medical_auth(pa_id, today)
+                payload = u.get_data_for_medical_auth(today)
                 self.med_client.upload(payload)
                 new_patients.append(i)
         return new_patients

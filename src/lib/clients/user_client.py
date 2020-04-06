@@ -67,10 +67,8 @@ class UserClient:
             person_auth_id,
         )
 
-    def get_a_person_auth_id(self):
-        return self.client_config.get_person_auth()
-
-    def get_data_for_medical_auth(self, personal_auth_id, today):
+    def get_data_for_medical_auth(self, today):
+        personal_auth_id =  self.client_config.get_person_auth()
         start_time = today - datetime.timedelta(days=28)
         return self.on_device_store.get_since(personal_auth_id, start_time)
 
